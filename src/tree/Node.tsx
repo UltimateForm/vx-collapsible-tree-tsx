@@ -1,47 +1,39 @@
 import React, {
 	Fragment,
+	FC,
 	useState,
 	useRef,
-	useMemo,
-	useEffect,
 	useLayoutEffect
 } from "react";
-import { Group } from "@vx/group";
+import { NodeProps, Vector2 } from "./types";
 
-const rectOffset = {
-	width: 10,
-	height: 5
+const rectOffset:Vector2 = {
+	x: 20,
+	y: 15
 };
 
-function Node({ node, onClick, onBuilt }) {
-	const [rect, setRect] = useState({});
-	const width = rect.x | 20;
-	const height = rect.y | 20;
-	const refCallback = useRef(null);
+const Node: FC<NodeProps> = props => {
+	const { node, onClick } = props;
+	const [rect, setRect] = useState<Vector2 | undefined>(undefined);
+	const width = rect && rect.x || 20;
+    const height = rect && rect.y || 20;
+    
+    const refCallback = useRef<SVGTextElement>(null);
 	useLayoutEffect(() => {
-		console.log("set rect>>", refCallback.current);
-
+		//see https://github.com/hshoff/vx/issues/375
 		if (!refCallback.current) return;
 		const elementRect = refCallback.current.getBoundingClientRect();
 		setRect({
-			x: elementRect.width + rectOffset.width,
-			y: elementRect.height + rectOffset.height
-		});
-		node.data.renderWidth = elementRect.width + rectOffset.width;
-		node.data.renderHeight = elementRect.height + rectOffset.height;
-		console.log("set rect", refCallback);
-	}, [refCallback]);
-	useMemo(() => {
-        console.log("XX", rect)
-		if (rect.x && rect.y) {
-			onBuilt();
-		}
-	}, [rect.x, rect.y]);
-	console.log("this size", rect);
+			x: elementRect.width + rectOffset.x,
+			y: elementRect.height + rectOffset.y
+        });
+		node.data.renderWidth = elementRect.width + rectOffset.x;
+		node.data.renderHeight = elementRect.height + rectOffset.y;
+    }, [refCallback]);
 	return (
 		<Fragment>
 			{node.depth === 0 && (
-				<circle r={width / 2} fill="url('#lg')" onClick={onClick} />
+				<circle r={width / 2} fill="url('#lg')" onClick={(e)=>onClick(e, node)} />
 			)}
 			{node.depth !== 0 && (
 				<rect
@@ -55,7 +47,7 @@ function Node({ node, onClick, onBuilt }) {
 					strokeDasharray={!node.data.children ? "2,2" : "0"}
 					strokeOpacity={!node.data.children ? 0.6 : 1}
 					rx={!node.data.children ? 10 : 0}
-					onClick={onClick}
+					onClick={(e)=>onClick(e, node)}
 				/>
 			)}
 			<text
@@ -77,6 +69,6 @@ function Node({ node, onClick, onBuilt }) {
 			</text>
 		</Fragment>
 	);
-}
+};
 
 export default Node;

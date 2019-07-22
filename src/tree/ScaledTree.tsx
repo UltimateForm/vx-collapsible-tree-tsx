@@ -2,8 +2,9 @@ import * as React from "react";
 import { withStyles, createStyles } from "@material-ui/core/styles";
 import { Button } from "@material-ui/core";
 import Measure from "react-measure";
-import Tree from './TreeTSX';
+import Tree from './Tree';
 import data from "./data";
+import { TreeNode } from "./types";
 
 const styles = createStyles({
 	rootDiv: {

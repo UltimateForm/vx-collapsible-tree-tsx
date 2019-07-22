@@ -1,6 +1,7 @@
+import { TreeNode } from './types';
 import { pointRadial } from "d3-shape";
 
-export function findCollapsedParent(node) {
+export const findCollapsedParent =(node:TreeNode):TreeNode|null=> {
 	if (!node.data.isExpanded) {
 		return node;
 	} else if (node.parent) {
@@ -10,8 +11,8 @@ export function findCollapsedParent(node) {
 	}
 }
 
-export function getTopLeft(node, layout, orientation) {
-	node.data && console.log("width", node);
+export const getTopLeft = (node:TreeNode, layout:string, orientation:string) => {
+
 	if (layout === "polar") {
 		const [radialX, radialY] = pointRadial(node.x, node.y);
 		return {
@@ -20,13 +21,13 @@ export function getTopLeft(node, layout, orientation) {
 		};
 	} else if (orientation === "vertical") {
 		return {
-			top: node.y - ((node.data && (node.depth===0? -1*node.data.renderWidth:node.data.renderHeight)/2)|| 0),
+			top: node.y - ((node.data && (node.depth===0? -1*node.data.renderWidth!:node.data.renderHeight!)/2)|| 0),
 			left: node.x 
 		};
 	} else {
 		return {
 			top: node.x,
-			left: node.y - ((node.depth===0? -1:1)*(node.data && node.data.renderWidth / 2) || 0)
+			left: node.y - ((node.depth===0? -1:1)*(node.data && node.data.renderWidth! / 2) || 0)
 		};
 	}
 }

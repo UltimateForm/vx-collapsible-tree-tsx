@@ -1,8 +1,12 @@
-export default {
+import { TreeNodeData } from './types';
+const data:TreeNodeData={
   name: "Tututuru",
+  isExpanded: true,
   children: [
     {
       name: "Aaaaaaaaaaaa ahhahahahah",
+      isExpanded: true,
+
       children: [
         { name: "A1" },
         { name: "A2" },
@@ -38,3 +42,5 @@ export default {
     }
   ]
 };
+
+export default data;

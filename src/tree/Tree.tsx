@@ -1,14 +1,11 @@
 import * as React from "react";
 import { Group } from "@vx/group";
-import { Tree } from "@vx/hierarchy";
+import { Tree, INode } from "@vx/hierarchy";
 import { LinearGradient } from "@vx/gradient";
 import { hierarchy } from "d3-hierarchy";
-// import Links from './Links';
-import Links from "./LinksMove";
-// import Nodes from './Nodes';
-import Nodes from "./NodesMove";
-import { TreeProps, Vector2, Anchors } from "./types";
-import { bool } from "prop-types";
+import Links from "./Links";
+import Nodes from "./Nodes";
+import { TreeProps, Vector2, TreeNode } from "./types";
 
 const useForceUpdate = () => {
 	const [, setState] = React.useState();
@@ -32,7 +29,7 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 	const [orientation, setOrientation] = React.useState<string>("horizontal");
 	const [linkType, setLinkType] = React.useState<string>("diagonal");
 	const [stepPercent, setStepPercent] = React.useState<number>(0.5);
-	const [r, forceUpdate] = React.useState<boolean>(false);
+	const [r, forceUpdate] = React.useState<boolean>(false); //i know...
 
 	const [effectiveWidth, effectiveHeight] = React.useMemo(() => {
 		const fHeight = height - 28;
@@ -75,36 +72,12 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 			sizeWidth,
 			sizeHeight
 		};
-	}, [layout, innerWidth, innerHeight]);
-	const innerGroupRef = React.useRef<SVGElement>(null);
+	}, [layout, innerWidth, innerHeight, orientation]);
+    const innerGroupRef = React.useRef<SVGElement>(null);
+    
 	const root = React.useMemo(() => {
 		return hierarchy(data, d => (d.isExpanded ? d.children : null));
 	}, [JSON.stringify(data)]);
-
-	React.useEffect(() => {
-		if (!innerGroupRef.current) return;
-		console.log("ref", innerGroupRef);
-		const preCanvas = innerGroupRef.current.getBoundingClientRect();
-		const nodeCanvas = innerGroupRef.current.children[0]; //should be 1
-		const firstNode = innerGroupRef.current.children[0]
-			.firstChild as SVGElement;
-		const firstNodeRect = firstNode && firstNode.getBoundingClientRect();
-		const canvasRect = nodeCanvas.getBoundingClientRect();
-		// console.log("preCanvas", preCanvas.width, preCanvas.height)
-		// console.log("canvas", canvasRect.width, canvasRect.height)
-		// console.log("effectve", effectiveWidth, effectiveHeight)
-		// console.log("width?", canvasRect.width===effectiveWidth, effectiveWidth-canvasRect.width)
-		if (firstNodeRect) {
-			if (orientation === "horizontal") {
-				// console.log("will change origin", origin)
-				// origin.x = margin.left-firstNodeRect.width/2
-			}
-			if (orientation === "vertical") {
-				// console.log("will change origin", origin)
-				// origin.y = margin.top-firstNodeRect.height/2
-			}
-		}
-	}, [layout, orientation, width, height, innerGroupRef.current]);
 
 	return (
 		<div>
@@ -169,19 +142,11 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 						(a.parent == b.parent ? 1 : 0.5) / a.depth
 					}
 				>
-					{(data: any) => {
-						console.log(
-							origin.y,
-							origin.x,
-							margin.top,
-							margin.left
-						);
+					{(data: TreeNode) => {
 						return (
 							<Group
 								top={origin.y}
 								left={origin.x}
-
-								// innerRef={innerGroupRef}
 							>
 								<Links
 									links={data.links()}
@@ -195,8 +160,7 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 									nodes={data.descendants()}
 									layout={layout}
 									orientation={orientation}
-									onNodeClick={(node: any) => {
-										console.log("click node", node.data);
+									onNodeClick={(node: TreeNode) => {
 										if (!node.data.isExpanded) {
 											node.data.x0 = node.x;
 											node.data.y0 = node.y;

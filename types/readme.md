@@ -1,0 +1,1 @@
+Taken from [vx-typescript-kitchensink](https://github.com/jackdbd/vx-typescript-kitchensink/tree/master/types)
