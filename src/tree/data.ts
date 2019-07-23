@@ -43,4 +43,4 @@ const data:TreeNodeData={
   ]
 };
 
-export default {name:"Test"};
+export default data;

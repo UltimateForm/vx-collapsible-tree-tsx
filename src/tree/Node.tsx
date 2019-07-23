@@ -1,5 +1,5 @@
-import React, { Fragment, FC, useState, useRef, useLayoutEffect } from "react";
-import { NodeProps, Vector2 } from "./types";
+import React, { Fragment, FC, useState, useRef, useLayoutEffect, cloneElement } from "react";
+import { NodeProps, Vector2, NodeEvents } from "./types";
 
 const rectOffset: Vector2 = {
 	x: 20,
@@ -7,7 +7,16 @@ const rectOffset: Vector2 = {
 };
 
 const Node: FC<NodeProps> = props => {
-	const { node, onNodeClick, onNodeDoubleClick, onNodeHover, onNodeMouseEnter, onNodeMouseLeave } = props;
+	const {
+	    node,
+	    onNodeClick,
+	    onNodeDoubleClick,
+	    onNodeHover,
+	    onNodeMouseEnter,
+        onNodeMouseLeave,
+        children,
+        operations
+	} = props;
 	const [rect, setRect] = useState<Vector2 | undefined>(undefined);
 	const width = (rect && rect.x) || 20;
 	const height = (rect && rect.y) || 20;
@@ -23,18 +32,38 @@ const Node: FC<NodeProps> = props => {
 		});
 		node.data.renderWidth = elementRect.width + rectOffset.x;
 		node.data.renderHeight = elementRect.height + rectOffset.y;
-	}, [refCallback]);
+    }, [refCallback]);
+    const events = React.useMemo<NodeEvents>(()=>{
+        return{
+             onNodeClick:props.onNodeClick||function(ev, node, ops){
+                ev.stopPropagation();
+                ops!.expandNode!(node);
+            },
+            onNodeDoubleClick:props.onNodeDoubleClick||function(ev, node, ops){
+                ev.stopPropagation();
+                console.log("onNodeDoubleClick undefined")
+            },
+            onNodeHover:props.onNodeHover||function(ev, node, ops){
+
+            },
+            onNodeMouseEnter:props.onNodeMouseEnter||function(ev, node, ops){
+            },
+            onNodeMouseLeave:props.onNodeMouseLeave||function(ev, node, ops){
+            }
+        }
+    }, [props.onNodeClick, props.onNodeDoubleClick, props.onNodeHover, operations]);
+    
 	return (
 		<Fragment>
 			{node.depth === 0 && (
 				<circle
-					r={width / 2}
-					fill="url('#lg')"
-                    onClick={e => onNodeClick && onNodeClick(e, node)}
-                    onDoubleClick={e=>onNodeDoubleClick && onNodeDoubleClick(e, node)}
-                    onMouseMove={e=>onNodeHover && onNodeHover(e, node)}
-                    onMouseEnter={e=>onNodeMouseEnter && onNodeMouseEnter(e, node)}
-                    onMouseLeave ={e=>onNodeMouseLeave && onNodeMouseLeave(e, node)}
+					r={width / 2}   
+                    fill="url('#lg')"                    
+                    onClick={e => events.onNodeClick && events.onNodeClick(e, node, operations)}
+                    onDoubleClick={e=>events.onNodeDoubleClick && events.onNodeDoubleClick(e, node, operations)}
+                    onMouseMove={e=>events.onNodeHover && events.onNodeHover(e, node, operations)}
+                    onMouseEnter={e=>events.onNodeMouseEnter && events.onNodeMouseEnter(e, node, operations)}
+                    onMouseLeave ={e=>events.onNodeMouseLeave && events.onNodeMouseLeave(e, node, operations)}
 				/>
 			)}
 			{node.depth !== 0 && (
@@ -49,13 +78,14 @@ const Node: FC<NodeProps> = props => {
 					strokeDasharray={!node.data.children ? "2,2" : "0"}
 					strokeOpacity={!node.data.children ? 0.6 : 1}
 					rx={!node.data.children ? 10 : 0}
-                    onClick={e => onNodeClick && onNodeClick(e, node)}
-                    onDoubleClick={e=>onNodeDoubleClick && onNodeDoubleClick(e, node)}
-                    onMouseMove={e=>onNodeHover && onNodeHover(e, node)}
-                    onMouseEnter={e=>onNodeMouseEnter && onNodeMouseEnter(e, node)}
-                    onMouseLeave ={e=>onNodeMouseLeave && onNodeMouseLeave(e, node)}
+                    onClick={e => events.onNodeClick && events.onNodeClick(e, node, operations)}
+                    onDoubleClick={e=>events.onNodeDoubleClick && events.onNodeDoubleClick(e, node, operations)}
+                    onMouseMove={e=>events.onNodeHover && events.onNodeHover(e, node, operations)}
+                    onMouseEnter={e=>events.onNodeMouseEnter && events.onNodeMouseEnter(e, node, operations)}
+                    onMouseLeave ={e=>events.onNodeMouseLeave && events.onNodeMouseLeave(e, node, operations)}
 				/>
-			)}
+            )}
+            {children && children(node, operations)}
 			<text
 				dy={".33em"}
 				fontSize={9}

@@ -26,7 +26,8 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 		},
 		addNode,
 		removeNode,
-		expandNode
+        expandNode,
+        nodeChildren
 	} = props;
 
 	const [layout, setlayout] = React.useState<string>("cartesian");
@@ -126,26 +127,6 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 				}
 		};
     }, [props.addNode, props.removeNode, props.expandNode]);
-    
-    const events = React.useMemo<NodeEvents>(()=>{
-        return{
-            onNodeClick:props.onNodeClick||function(ev, node, ops){
-                ev.stopPropagation();
-                ops!.expandNode!(node);
-            },
-            onNodeDoubleClick:props.onNodeDoubleClick||function(ev, node, ops){
-                ev.stopPropagation();
-                ops!.addNode!(node);
-            },
-            onNodeHover:props.onNodeHover||function(ev, node, ops){
-
-            },
-            onNodeMouseEnter:props.onNodeMouseEnter||function(ev, node, ops){
-            },
-            onNodeMouseLeave:props.onNodeMouseLeave||function(ev, node, ops){
-            }
-        }
-    }, [props.onNodeClick, props.onNodeDoubleClick, props.onNodeHover, operations]);
 
 	return (
 		<div>
@@ -224,12 +205,15 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 								<Nodes
 									nodes={data.descendants()}
 									layout={layout}
-									orientation={orientation}
-                                    onNodeClick={(e, node) => events.onNodeClick!(e, node, operations)}
-                                    onNodeDoubleClick={(e, node) => events.onNodeDoubleClick!(e, node, operations)}
-                                    onNodeHover={(e, node) => events.onNodeHover!(e, node, operations)}
-                                    onNodeMouseEnter={(e, node) => events.onNodeMouseEnter!(e, node, operations)}
-                                    onNodeMouseLeave={(e, node) => events.onNodeMouseLeave!(e, node, operations)}
+                                    orientation={orientation}
+                                    operations={operations}
+                                    nodeChildren={nodeChildren}
+                                    {...props as NodeEvents}
+                                    // onNodeClick={(e, node) => events.onNodeClick!(e, node, operations)}
+                                    // onNodeDoubleClick={(e, node) => events.onNodeDoubleClick!(e, node, operations)}
+                                    // onNodeHover={(e, node) => events.onNodeHover!(e, node, operations)}
+                                    // onNodeMouseEnter={(e, node) => events.onNodeMouseEnter!(e, node, operations)}
+                                    // onNodeMouseLeave={(e, node) => events.onNodeMouseLeave!(e, node, operations)}
 								/>
 							</Group>
 						);

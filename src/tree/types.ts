@@ -1,14 +1,13 @@
-import { TreeNode } from "./types";
 import { HierarchyNode, HierarchyLink } from "d3-hierarchy";
 import * as React from "react";
-import { string } from "prop-types";
 import { INode } from "@vx/network";
 
 export interface TreeNodeData {
 	id?: string | number;
 	name: string;
 	children?: TreeNodeData[];
-	isExpanded?: boolean;
+    isExpanded?: boolean;
+    selected?:boolean;
 	x0?: number;
 	y0?: number;
 	renderWidth?: number;
@@ -65,7 +64,9 @@ export interface TreeProps extends TreeOperations, NodeEvents {
 	data: TreeNodeData;
 	width: number;
 	height: number;
-	margin?: Anchors;
+    margin?: Anchors;
+    nodeChildren?:(node:TreeNode, ops:TreeOperations)=>any;
+
 }
 export interface TreeState {
 	layout: string;
@@ -89,9 +90,13 @@ export interface LinkProps extends TreeState {
 export interface NodesMoveProps extends NodeEvents {
 	nodes: TreeNode[];
 	layout: string;
-	orientation: string;
+    orientation: string;
+    operations: TreeOperations;
+    nodeChildren?:(node:TreeNode, ops:TreeOperations)=>any;
 }
 
 export interface NodeProps extends NodeEvents{
-	node: TreeNode;
+    node: TreeNode;
+    operations: TreeOperations;
+    children?:(node:TreeNode, ops:TreeOperations)=>any;
 }

@@ -44,7 +44,7 @@ class NodesMove extends Component<NodesMoveProps> {
 	}
 
 	render() {
-		const { nodes, layout, orientation, onNodeClick } = this.props;
+		const { nodes, layout, orientation, onNodeClick, operations, nodeChildren } = this.props;
 		this.renderRects = nodes.map(i => ({
 			x: i.data.renderWidth!,
 			y: i.data.renderHeight!
@@ -102,9 +102,10 @@ class NodesMove extends Component<NodesMoveProps> {
 			>
 				{nodes => (
 					<Group>
-						{nodes.map(({ key, data: node, state }) => {
+						{nodes.sort((x, y)=>Number(x.data.data.selected||0)-Number(y.data.data.selected||0)).map(({ key, data: node, state }) => {
 							const width = 40;
-							const height = 20;
+                            const height = 20;
+                            // console.log(nodes.sort((x, y)=>Number(x.data.data.selected||0)-Number(y.data.data.selected||0)))
 							return (
 								<Group
 									top={state.top}
@@ -113,8 +114,10 @@ class NodesMove extends Component<NodesMoveProps> {
 									opacity={state.opacity}
 								>
 									<Node
+                                        operations={operations}
 										node={node}
                                         key={key}
+                                        children={nodeChildren}
                                         {...(this.props as NodeEvents)}
 									/>
 								</Group>
