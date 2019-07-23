@@ -3,7 +3,7 @@ import { Group } from "@vx/group";
 import NodeGroup from "react-move/NodeGroup";
 import Node from "./Node";
 import { findCollapsedParent, getTopLeft } from "./utils";
-import { NodesMoveProps, Vector2, TreeNode } from "./types";
+import { NodesMoveProps, Vector2, TreeNode, NodeEvents } from "./types";
 
 class NodesMove extends Component<NodesMoveProps> {
 	constructor(props: NodesMoveProps) {
@@ -11,16 +11,14 @@ class NodesMove extends Component<NodesMoveProps> {
 	}
 
 	prioritizedData: any[] | undefined = undefined;
-	renderRects: Vector2[] | undefined = undefined;
+    renderRects: Vector2[] | undefined = undefined;
 
-	componentDidUpdate(prevProps: NodesMoveProps) {
+    compareRects= () =>{
 		//checks if positions are optimized for sizes, if not, rerenders
-		const oldData = prevProps.nodes;
-		if (!oldData) return;
 		const newRenderRects: Vector2[] = this.props.nodes.map(i => ({
 			x: i.data.renderWidth!,
 			y: i.data.renderHeight!
-		}));
+        }));
 		if (!this.renderRects) return;
 		if (this.renderRects === newRenderRects) return; //old comment on old impl was "dont worry node-group already handles it https://react-move.js.org/#/component-api/node-group" and im too afraid of deleting it now
 
@@ -35,6 +33,14 @@ class NodesMove extends Component<NodesMoveProps> {
 			}
 		}
 		this.prioritizedData = undefined;
+    }
+    componentDidMount(){
+        this.compareRects();
+    }
+	componentDidUpdate(prevProps: NodesMoveProps) {
+        const oldData = prevProps.nodes;
+		if (!oldData) return;
+        this.compareRects();
 	}
 
 	render() {
@@ -42,7 +48,7 @@ class NodesMove extends Component<NodesMoveProps> {
 		this.renderRects = nodes.map(i => ({
 			x: i.data.renderWidth!,
 			y: i.data.renderHeight!
-		}));
+        }));
 		return (
 			<NodeGroup
 				data={this.prioritizedData || nodes}
@@ -108,8 +114,8 @@ class NodesMove extends Component<NodesMoveProps> {
 								>
 									<Node
 										node={node}
-										onClick={() => onNodeClick && onNodeClick(node)}
-										key={key}
+                                        key={key}
+                                        {...(this.props as NodeEvents)}
 									/>
 								</Group>
 							);

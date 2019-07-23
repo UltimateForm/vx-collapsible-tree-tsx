@@ -1,24 +1,18 @@
-import React, {
-	Fragment,
-	FC,
-	useState,
-	useRef,
-	useLayoutEffect
-} from "react";
+import React, { Fragment, FC, useState, useRef, useLayoutEffect } from "react";
 import { NodeProps, Vector2 } from "./types";
 
-const rectOffset:Vector2 = {
+const rectOffset: Vector2 = {
 	x: 20,
 	y: 15
 };
 
 const Node: FC<NodeProps> = props => {
-	const { node, onClick } = props;
+	const { node, onNodeClick, onNodeDoubleClick, onNodeHover, onNodeMouseEnter, onNodeMouseLeave } = props;
 	const [rect, setRect] = useState<Vector2 | undefined>(undefined);
-	const width = rect && rect.x || 20;
-    const height = rect && rect.y || 20;
-    
-    const refCallback = useRef<SVGTextElement>(null);
+	const width = (rect && rect.x) || 20;
+	const height = (rect && rect.y) || 20;
+
+	const refCallback = useRef<SVGTextElement>(null);
 	useLayoutEffect(() => {
 		//see https://github.com/hshoff/vx/issues/375
 		if (!refCallback.current) return;
@@ -26,14 +20,22 @@ const Node: FC<NodeProps> = props => {
 		setRect({
 			x: elementRect.width + rectOffset.x,
 			y: elementRect.height + rectOffset.y
-        });
+		});
 		node.data.renderWidth = elementRect.width + rectOffset.x;
 		node.data.renderHeight = elementRect.height + rectOffset.y;
-    }, [refCallback]);
+	}, [refCallback]);
 	return (
 		<Fragment>
 			{node.depth === 0 && (
-				<circle r={width / 2} fill="url('#lg')" onClick={(e)=>onClick(e, node)} />
+				<circle
+					r={width / 2}
+					fill="url('#lg')"
+                    onClick={e => onNodeClick && onNodeClick(e, node)}
+                    onDoubleClick={e=>onNodeDoubleClick && onNodeDoubleClick(e, node)}
+                    onMouseMove={e=>onNodeHover && onNodeHover(e, node)}
+                    onMouseEnter={e=>onNodeMouseEnter && onNodeMouseEnter(e, node)}
+                    onMouseLeave ={e=>onNodeMouseLeave && onNodeMouseLeave(e, node)}
+				/>
 			)}
 			{node.depth !== 0 && (
 				<rect
@@ -47,7 +49,11 @@ const Node: FC<NodeProps> = props => {
 					strokeDasharray={!node.data.children ? "2,2" : "0"}
 					strokeOpacity={!node.data.children ? 0.6 : 1}
 					rx={!node.data.children ? 10 : 0}
-					onClick={(e)=>onClick(e, node)}
+                    onClick={e => onNodeClick && onNodeClick(e, node)}
+                    onDoubleClick={e=>onNodeDoubleClick && onNodeDoubleClick(e, node)}
+                    onMouseMove={e=>onNodeHover && onNodeHover(e, node)}
+                    onMouseEnter={e=>onNodeMouseEnter && onNodeMouseEnter(e, node)}
+                    onMouseLeave ={e=>onNodeMouseLeave && onNodeMouseLeave(e, node)}
 				/>
 			)}
 			<text

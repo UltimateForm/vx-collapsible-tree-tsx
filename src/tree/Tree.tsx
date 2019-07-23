@@ -5,7 +5,8 @@ import { LinearGradient } from "@vx/gradient";
 import { hierarchy } from "d3-hierarchy";
 import Links from "./Links";
 import Nodes from "./Nodes";
-import { TreeProps, Vector2, TreeNode } from "./types";
+import _ from "lodash";
+import { TreeProps, Vector2, TreeNode, TreeOperations, NodeEvents } from "./types";
 
 const useForceUpdate = () => {
 	const [, setState] = React.useState();
@@ -22,7 +23,10 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 			left: 24,
 			right: 24,
 			bottom: 24
-		}
+		},
+		addNode,
+		removeNode,
+		expandNode
 	} = props;
 
 	const [layout, setlayout] = React.useState<string>("cartesian");
@@ -72,12 +76,76 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 			sizeWidth,
 			sizeHeight
 		};
-	}, [layout, innerWidth, innerHeight, orientation]);
-    const innerGroupRef = React.useRef<SVGElement>(null);
+    }, [layout, innerWidth, innerHeight, orientation]);
     
 	const root = React.useMemo(() => {
 		return hierarchy(data, d => (d.isExpanded ? d.children : null));
-	}, [JSON.stringify(data)]);
+    }, [JSON.stringify(data)]);
+    
+	const forceRefresh = () => {
+		forceUpdate(prev => !prev); //this doenst work, reference not kept
+    };
+
+	const operations = React.useMemo<TreeOperations>(() => {
+		return {
+			addNode:
+				props.addNode ||
+				function(node) {
+					node.data.children = [
+						...(node.data.children || []),
+						{
+							name: `${node.data.name}.${(node.data.children &&
+								node.data.children.length) ||
+								0}`
+						}
+                    ];
+                    node.data.isExpanded= true;
+                    forceRefresh();
+					return node;
+				},
+			removeNode:
+				props.removeNode ||
+				function(node) {
+					const parentNode = node.parent;
+					parentNode!.data.children = _.difference(
+						node.data.children,
+						[node.data]
+					);
+					return node;
+				},
+			expandNode:
+				props.expandNode ||
+				function(node) {
+					if (!node.data.isExpanded) {
+						node.data.x0 = node.x;
+						node.data.y0 = node.y;
+					}
+					node.data.isExpanded = !node.data.isExpanded;
+					forceRefresh();
+					return node;
+				}
+		};
+    }, [props.addNode, props.removeNode, props.expandNode]);
+    
+    const events = React.useMemo<NodeEvents>(()=>{
+        return{
+            onNodeClick:props.onNodeClick||function(ev, node, ops){
+                ev.stopPropagation();
+                ops!.expandNode!(node);
+            },
+            onNodeDoubleClick:props.onNodeDoubleClick||function(ev, node, ops){
+                ev.stopPropagation();
+                ops!.addNode!(node);
+            },
+            onNodeHover:props.onNodeHover||function(ev, node, ops){
+
+            },
+            onNodeMouseEnter:props.onNodeMouseEnter||function(ev, node, ops){
+            },
+            onNodeMouseLeave:props.onNodeMouseLeave||function(ev, node, ops){
+            }
+        }
+    }, [props.onNodeClick, props.onNodeDoubleClick, props.onNodeHover, operations]);
 
 	return (
 		<div>
@@ -144,10 +212,7 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 				>
 					{(data: TreeNode) => {
 						return (
-							<Group
-								top={origin.y}
-								left={origin.x}
-							>
+							<Group top={origin.y} left={origin.x}>
 								<Links
 									links={data.links()}
 									linkType={linkType}
@@ -160,16 +225,11 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 									nodes={data.descendants()}
 									layout={layout}
 									orientation={orientation}
-									onNodeClick={(node: TreeNode) => {
-										if (!node.data.isExpanded) {
-											node.data.x0 = node.x;
-											node.data.y0 = node.y;
-										}
-										node.data.isExpanded = !node.data
-											.isExpanded;
-										console.log("click node", node.data);
-										forceUpdate(!r);
-									}}
+                                    onNodeClick={(e, node) => events.onNodeClick!(e, node, operations)}
+                                    onNodeDoubleClick={(e, node) => events.onNodeDoubleClick!(e, node, operations)}
+                                    onNodeHover={(e, node) => events.onNodeHover!(e, node, operations)}
+                                    onNodeMouseEnter={(e, node) => events.onNodeMouseEnter!(e, node, operations)}
+                                    onNodeMouseLeave={(e, node) => events.onNodeMouseLeave!(e, node, operations)}
 								/>
 							</Group>
 						);

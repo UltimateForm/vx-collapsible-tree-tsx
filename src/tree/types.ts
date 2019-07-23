@@ -17,23 +17,37 @@ export interface TreeNodeData {
 }
 export interface TreeNode extends HierarchyNode<TreeNodeData>, INode {}
 
-export interface DataOperations {
+export interface TreeOperations {
 	addNode?: (parent: TreeNode) => TreeNode;
-	removeNode?: (node: TreeNode) => TreeNode;
+    removeNode?: (node: TreeNode) => TreeNode;
+    expandNode?: (node:TreeNode) => TreeNode;
 }
 
 export interface NodeEvents {
 	onNodeClick?: (
-		event: React.MouseEvent<SVGRectElement, MouseEvent>,
-		node: TreeNode
+		event: React.MouseEvent<SVGElement, MouseEvent>,
+        node: TreeNode,
+        operations?:TreeOperations
 	) => void;
 	onNodeDoubleClick?: (
-		event: React.MouseEvent<SVGRectElement, MouseEvent>,
-		node: TreeNode
+		event: React.MouseEvent<SVGElement, MouseEvent>,
+        node: TreeNode,
+        operations?:TreeOperations
 	) => void;
 	onNodeHover?: (
-		event: React.MouseEvent<SVGRectElement, MouseEvent>,
-		node: TreeNode
+		event: React.MouseEvent<SVGElement, MouseEvent>,
+        node: TreeNode,
+        operations?:TreeOperations
+    ) => void;
+    onNodeMouseLeave?: (
+		event: React.MouseEvent<SVGElement, MouseEvent>,
+        node: TreeNode,
+        operations?:TreeOperations
+    ) => void;
+    onNodeMouseEnter?: (
+		event: React.MouseEvent<SVGElement, MouseEvent>,
+        node: TreeNode,
+        operations?:TreeOperations
 	) => void;
 }
 export interface Vector2 {
@@ -47,7 +61,7 @@ export interface Anchors {
 	right: number;
 }
 
-export interface TreeProps extends DataOperations, NodeEvents {
+export interface TreeProps extends TreeOperations, NodeEvents {
 	data: TreeNodeData;
 	width: number;
 	height: number;
@@ -72,17 +86,12 @@ export interface LinkProps extends TreeState {
 	key: any; //need to check type later
 }
 
-export interface NodesMoveProps {
+export interface NodesMoveProps extends NodeEvents {
 	nodes: TreeNode[];
 	layout: string;
 	orientation: string;
-	onNodeClick?: (node: TreeNode) => void;
 }
 
-export interface NodeProps {
+export interface NodeProps extends NodeEvents{
 	node: TreeNode;
-	onClick: (
-		event: React.MouseEvent<SVGElement, MouseEvent>,
-		node: TreeNode
-	) => void;
 }

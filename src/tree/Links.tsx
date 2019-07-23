@@ -104,19 +104,19 @@ const Links: FC<LinksProps> = (props: LinksProps) => {
 				};
 			}}
 			leave={({ source, target }) => {
-				const collapsedParent = findCollapsedParent(source);
+                const collapsedParent = findCollapsedParent(source);
 				return {
 					source: {
 						x: [
-							collapsedParent!.data.x0 || collapsedParent!.data.x
+							collapsedParent!.data.x0 || collapsedParent!.x
 						], //assume not null because root (only parentless node, will never leave)
-						y: [collapsedParent!.data.y0 || collapsedParent!.data.y]
+						y: [collapsedParent!.data.y0 || collapsedParent!.y ]
 					},
 					target: {
 						x: [
-							collapsedParent!.data.x0 || collapsedParent!.data.x
+							collapsedParent!.data.x0 || collapsedParent!.x
 						],
-						y: [collapsedParent!.data.y0 || collapsedParent!.data.y]
+						y: [collapsedParent!.data.y0 || collapsedParent!.y ]
 					}
 				};
 			}}
