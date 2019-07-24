@@ -12,7 +12,7 @@ const Links: FC<LinksProps> = (props: LinksProps) => {
 		<NodeGroup
 			data={links}
 			keyAccessor={(d, i) =>
-				`${d.source.data.name}_${d.target.data.name}`
+				`${d.source.data.id}_${d.target.data.id}`
 			}
 			start={({ source, target }) => {
 				return {
@@ -105,6 +105,7 @@ const Links: FC<LinksProps> = (props: LinksProps) => {
 			}}
 			leave={({ source, target }) => {
                 const collapsedParent = findCollapsedParent(source);
+                console.log("ya boi", collapsedParent)
 				return {
 					source: {
 						x: [

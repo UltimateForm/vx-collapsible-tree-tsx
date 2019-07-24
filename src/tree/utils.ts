@@ -2,7 +2,7 @@ import { TreeNode } from './types';
 import { pointRadial } from "d3-shape";
 
 export const findCollapsedParent =(node:TreeNode):TreeNode|null=> {
-	if (!node.data.isExpanded) {
+	if (!node.data.isExpanded || !node.parent) {
 		return node;
 	} else if (node.parent) {
 		return findCollapsedParent(node.parent);

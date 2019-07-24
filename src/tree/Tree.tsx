@@ -7,6 +7,7 @@ import Links from "./Links";
 import Nodes from "./Nodes";
 import _ from "lodash";
 import { TreeProps, Vector2, TreeNode, TreeOperations, NodeEvents } from "./types";
+import shortId from "shortid";
 
 const useForceUpdate = () => {
 	const [, setState] = React.useState();
@@ -80,13 +81,13 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
     }, [layout, innerWidth, innerHeight, orientation]);
     
 	const root = React.useMemo(() => {
-		return hierarchy(data, d => (d.isExpanded ? d.children : null));
+        const newRoot = hierarchy(data, d => (d.isExpanded ? d.children : null));
+        console.log("new data",newRoot);
+		return newRoot;
     }, [JSON.stringify(data)]);
-    
 	const forceRefresh = () => {
 		forceUpdate(prev => !prev); //this doenst work, reference not kept
     };
-
 	const operations = React.useMemo<TreeOperations>(() => {
 		return {
 			addNode:
@@ -97,7 +98,8 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 						{
 							name: `${node.data.name}.${(node.data.children &&
 								node.data.children.length) ||
-								0}`
+                                0}`,
+                            id:shortId.generate()
 						}
                     ];
                     node.data.isExpanded= true;
@@ -107,12 +109,12 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 			removeNode:
 				props.removeNode ||
 				function(node) {
-					const parentNode = node.parent;
-					parentNode!.data.children = _.difference(
-						node.data.children,
-						[node.data]
-					);
-					return node;
+                    const parentNode = node.parent;
+                    if(!parentNode || !parentNode.data.children)throw `Expected defined parent with defined children but got ${parentNode}`
+                    parentNode.data.children = parentNode.data.children.filter(i=>i.name!==node.data.name)
+                    parentNode.children = parentNode.children!.filter(i=>i.data.name!==node.data.name)
+                    node.parent=null;
+					return parentNode;
 				},
 			expandNode:
 				props.expandNode ||
@@ -209,11 +211,6 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
                                     operations={operations}
                                     nodeChildren={nodeChildren}
                                     {...props as NodeEvents}
-                                    // onNodeClick={(e, node) => events.onNodeClick!(e, node, operations)}
-                                    // onNodeDoubleClick={(e, node) => events.onNodeDoubleClick!(e, node, operations)}
-                                    // onNodeHover={(e, node) => events.onNodeHover!(e, node, operations)}
-                                    // onNodeMouseEnter={(e, node) => events.onNodeMouseEnter!(e, node, operations)}
-                                    // onNodeMouseLeave={(e, node) => events.onNodeMouseLeave!(e, node, operations)}
 								/>
 							</Group>
 						);

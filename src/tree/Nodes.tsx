@@ -52,7 +52,7 @@ class NodesMove extends Component<NodesMoveProps> {
 		return (
 			<NodeGroup
 				data={this.prioritizedData || nodes}
-				keyAccessor={d => d.data.name}
+				keyAccessor={d => d.data.id}
 				start={node => {
 					const parentTopLeft = getTopLeft(
 						node.parent || { x: 0, y: 0 },
