@@ -4,7 +4,7 @@ import { Button } from "@material-ui/core";
 import Measure from "react-measure";
 import Tree from './Tree';
 import data from "./data";
-import { TreeNode } from "./types";
+import { TreeNode, TreeProps } from "./types";
 
 const styles = createStyles({
 	rootDiv: {
@@ -18,7 +18,10 @@ const styles = createStyles({
 	}
 });
 
-const ScaledTree: React.FC = (props: { [key: string]: any }) => {
+interface ScaledTreeProps extends TreeProps{
+    classes:any
+}
+const ScaledTree: React.FC<ScaledTreeProps> = (props:ScaledTreeProps) => {
     const [width, setWidth] = React.useState<number>(0);
     const [height, setHeight] = React.useState<number>(0);
 
@@ -31,7 +34,7 @@ const ScaledTree: React.FC = (props: { [key: string]: any }) => {
         }}>
 			{({ measureRef }) => (
 				<div ref={measureRef} className={props.classes.rootDiv}>
-                    <Tree data={data} width={width-20} height={height-20}  />
+                    <Tree {...props as TreeProps}  width={width-20} height={height-20}/>
 				</div>
 			)}
 		</Measure>

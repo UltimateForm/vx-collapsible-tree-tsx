@@ -20,6 +20,8 @@ export interface TreeOperations {
 	addNode?: (parent: TreeNode) => TreeNode;
     removeNode?: (node: TreeNode) => TreeNode;
     expandNode?: (node:TreeNode) => TreeNode;
+    collapseAll?: (selector?:(node:TreeNode)=>boolean) => TreeNode;
+    expandAll?: (selector?:(node:TreeNode)=>boolean)=> TreeNode;
 }
 
 export interface NodeEvents {
@@ -49,6 +51,30 @@ export interface NodeEvents {
         operations?:TreeOperations
 	) => void;
 }
+
+export interface CanvasEvents{
+    onCanvasClick?: (
+		event: React.MouseEvent<SVGElement, MouseEvent>,
+        operations?:TreeOperations
+	) => void;
+	onCanvasDoubleClick?: (
+		event: React.MouseEvent<SVGElement, MouseEvent>,
+        operations?:TreeOperations
+	) => void;
+	onCanvasHover?: (
+		event: React.MouseEvent<SVGElement, MouseEvent>,
+        operations?:TreeOperations
+    ) => void;
+    onCanvasMouseLeave?: (
+		event: React.MouseEvent<SVGElement, MouseEvent>,
+        operations?:TreeOperations
+    ) => void;
+    onCanvasMouseEnter?: (
+		event: React.MouseEvent<SVGElement, MouseEvent>,
+        operations?:TreeOperations
+	) => void;
+}
+
 export interface Vector2 {
 	x: number;
 	y: number;
@@ -60,7 +86,7 @@ export interface Anchors {
 	right: number;
 }
 
-export interface TreeProps extends TreeOperations, NodeEvents {
+export interface TreeProps extends TreeOperations, NodeEvents, CanvasEvents {
 	data: TreeNodeData;
 	width: number;
 	height: number;
@@ -76,7 +102,8 @@ export interface TreeState {
 }
 export interface LinksProps extends TreeState {
 	//don't worry about it
-	links: HierarchyLink<any>[];
+    links: HierarchyLink<any>[];
+    selectedRoute: (string|number)[]; //ReactText??????????????????????????
 }
 
 export interface LinkProps extends TreeState {

@@ -58,7 +58,8 @@ const Node: FC<NodeProps> = props => {
 			{node.depth === 0 && (
 				<circle
 					r={width / 2}   
-                    fill="url('#lg')"                    
+                    fill="#ffffff"
+                    stroke={node.data.children && node.data.children.length>0 ? '#00ffd8' : '#26deb0'}              
                     onClick={e => events.onNodeClick && events.onNodeClick(e, node, operations)}
                     onDoubleClick={e=>events.onNodeDoubleClick && events.onNodeDoubleClick(e, node, operations)}
                     onMouseMove={e=>events.onNodeHover && events.onNodeHover(e, node, operations)}
@@ -71,13 +72,13 @@ const Node: FC<NodeProps> = props => {
 					height={height}
 					width={width}
 					y={-height / 2}
-					x={-width / 2}
-					fill={"#272b4d"}
-					stroke={node.data.children ? "#03c0dc" : "#26deb0"}
-					strokeWidth={1}
-					strokeDasharray={!node.data.children ? "2,2" : "0"}
-					strokeOpacity={!node.data.children ? 0.6 : 1}
-					rx={!node.data.children ? 10 : 0}
+                    x={-width / 2}
+                    fill={node.data.selected?" #ffffff": '#272b4d'}
+                    stroke={node.data.children ? '#03c0dc' : '#26deb0'}
+                    strokeWidth={node.data.selected? 1.25 : 1}
+                    strokeDasharray={node.data.children && node.data.children.length>0? '0': '2,2'}
+                    strokeOpacity={node.data.children  && node.data.children.length>0? 1 : 0.6}
+                    rx={node.data.children && node.data.children.length>0? 0 : 10}
                     onClick={e => events.onNodeClick && events.onNodeClick(e, node, operations)}
                     onDoubleClick={e=>events.onNodeDoubleClick && events.onNodeDoubleClick(e, node, operations)}
                     onMouseMove={e=>events.onNodeHover && events.onNodeHover(e, node, operations)}
@@ -93,13 +94,7 @@ const Node: FC<NodeProps> = props => {
 				textAnchor={"middle"}
 				style={{ pointerEvents: "none" }}
 				ref={refCallback}
-				fill={
-					node.depth === 0
-						? "#71248e"
-						: node.children
-						? "white"
-						: "#26deb0"
-				}
+                fill={node.depth === 0 ? '#71248e' : node.children && node.children.length>0 ? (node.data.selected? '#71248e' :'white') : ('#26deb0')}
 			>
 				{node.data.name}
 			</text>

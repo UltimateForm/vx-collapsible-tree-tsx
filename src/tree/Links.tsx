@@ -6,7 +6,7 @@ import { findCollapsedParent } from "./utils";
 import { LinksProps } from "./types";
 
 const Links: FC<LinksProps> = (props: LinksProps) => {
-	const { links, linkType, layout, orientation, stepPercent } = props;
+	const { links, linkType, layout, orientation, stepPercent, selectedRoute } = props;
 
 	return (
 		<NodeGroup
@@ -105,7 +105,6 @@ const Links: FC<LinksProps> = (props: LinksProps) => {
 			}}
 			leave={({ source, target }) => {
                 const collapsedParent = findCollapsedParent(source);
-                console.log("ya boi", collapsedParent)
 				return {
 					source: {
 						x: [
@@ -124,7 +123,10 @@ const Links: FC<LinksProps> = (props: LinksProps) => {
 		>
 			{nodes => (
 				<Group>
-					{nodes.map(({ key, data, state }) => {
+					{nodes.sort((x, y)=>{
+                        const num = Number(selectedRoute.includes(x.data.target.data.id))-Number(selectedRoute.includes(y.data.target.data.id));
+                        return num; //weird exception was being thrown so expanded this??
+                    }).map(({ key, data, state }) => {
 						return (
 							<Link
 								data={state}
@@ -132,8 +134,12 @@ const Links: FC<LinksProps> = (props: LinksProps) => {
 								layout={layout}
 								orientation={orientation}
 								stepPercent={stepPercent}
-								stroke="#374469"
-								strokeWidth="1"
+								stroke={
+                                     selectedRoute.some(d=>data.source.data.id===d) && selectedRoute.some(d=>data.target.data.id===d)? 
+										 "#26deb0"
+										: "#374469"
+                                }
+                                strokeWidth="1"
 								fill="none"
 								key={key}
 							/>

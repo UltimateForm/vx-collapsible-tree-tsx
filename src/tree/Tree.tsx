@@ -14,6 +14,12 @@ const useForceUpdate = () => {
 	return setState;
 };
 
+const selectedRoute = (node:TreeNode):(string|number)[] => {
+    const route:(string|number)[] = [];
+    node.ancestors().forEach(i=>route.push(i.data.id!))
+    return route;
+};
+
 const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 	const {
 		data,
@@ -25,9 +31,11 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 			right: 24,
 			bottom: 24
 		},
-		addNode,
-		removeNode,
-        expandNode,
+        onCanvasClick,
+        onCanvasDoubleClick,
+        onCanvasHover,
+        onCanvasMouseEnter,
+        onCanvasMouseLeave,
         nodeChildren
 	} = props;
 
@@ -58,8 +66,6 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 				x: innerWidth / 2,
 				y: innerHeight / 2
 			};
-			console.log("uh", layout, origin);
-
 			sizeWidth = 2 * Math.PI;
 			sizeHeight = Math.min(innerWidth, innerHeight) / 2;
 		} else {
@@ -79,14 +85,15 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 			sizeHeight
 		};
     }, [layout, innerWidth, innerHeight, orientation]);
-    
-	const root = React.useMemo(() => {
+	const [root, routeSelected] = React.useMemo(() => {
         const newRoot = hierarchy(data, d => (d.isExpanded ? d.children : null));
-        console.log("new data",newRoot);
-		return newRoot;
+        let rs:(string|number)[] = [];
+        const selectedNode = newRoot.descendants().find(i=>i.data.selected) as TreeNode;
+        if(selectedNode)rs=selectedRoute(selectedNode);
+		return [newRoot, rs];
     }, [JSON.stringify(data)]);
 	const forceRefresh = () => {
-		forceUpdate(prev => !prev); //this doenst work, reference not kept
+		forceUpdate(prev => !prev); 
     };
 	const operations = React.useMemo<TreeOperations>(() => {
 		return {
@@ -123,12 +130,31 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 						node.data.x0 = node.x;
 						node.data.y0 = node.y;
 					}
-					node.data.isExpanded = !node.data.isExpanded;
+                    node.data.isExpanded = !node.data.isExpanded;
 					forceRefresh();
 					return node;
-				}
+                },
+            collapseAll:
+                props.collapseAll ||
+                function(selector){
+                    root.descendants().forEach((i)=>{
+                        (i as TreeNode).data.isExpanded=selector===undefined? false : !selector(i as TreeNode); 
+                        //tried with the pretty way, more readable like this
+                    })
+                    return root as TreeNode;
+                    
+                },
+            expandAll:
+                props.expandAll ||
+                function(selector){
+                    root.descendants().forEach((i)=>{
+                        (i as TreeNode).data.isExpanded=selector===undefined? true : selector(i as TreeNode); 
+                    })
+                    return root as TreeNode;
+                }
+
 		};
-    }, [props.addNode, props.removeNode, props.expandNode]);
+    }, [{...props as TreeOperations}]);
 
 	return (
 		<div>
@@ -176,13 +202,21 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 				/>
 			</div>
 
-			<svg width={effectiveWidth} height={effectiveHeight}>
+            <svg 
+                width={effectiveWidth}
+                height={effectiveHeight}
+            >
 				<LinearGradient id="lg" from="#fd9b93" to="#fe6e9e" />
 				<rect
 					width={effectiveWidth}
 					height={effectiveHeight}
 					rx={14}
-					fill="#272b4d"
+                    fill="#272b4d"
+                    onClick={(e)=>onCanvasClick&&onCanvasClick(e, operations)}
+                    onDoubleClick={(e)=>onCanvasDoubleClick&&onCanvasDoubleClick(e, operations)}
+                    onMouseMove={(e)=>onCanvasHover&&onCanvasHover(e, operations)}
+                    onMouseEnter={(e)=>onCanvasMouseEnter&&onCanvasMouseEnter(e, operations)}
+                    onMouseLeave={(e)=>onCanvasMouseLeave&&onCanvasMouseLeave(e, operations)}
 				/>
 				<Tree
 					top={origin.y}
@@ -201,7 +235,8 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 									linkType={linkType}
 									layout={layout}
 									orientation={orientation}
-									stepPercent={stepPercent}
+                                    stepPercent={stepPercent}
+                                    selectedRoute={routeSelected}
 								/>
 
 								<Nodes

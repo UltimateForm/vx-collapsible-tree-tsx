@@ -1,6 +1,7 @@
 import { TreeProps, TreeNodeData, TreeNode } from "./types";
 import React, { FC, useState } from "react";
 import Tree from "./Tree";
+import ScaledTree from "./ScaledTree";
 import data from "./data";
 import shortId from "shortid";
 import {useSpring, animated} from 'react-spring'
@@ -76,21 +77,30 @@ class CustomizedView extends React.Component {
             props,
         } = this;
 
-        console.log("data", this.state.data)
         return (
-            <Tree
+            <ScaledTree
                 data={this.state.data}
+                onCanvasClick={(e, operations)=>{
+                    if(this.state.selected){
+                        this.state.selected.data.selected=false;
+                    }
+                    this.setState({selected:null});
+                    operations && operations.expandAll && operations.expandAll();
+                }}
                 width={600}
                 height={500}
                 onNodeClick={(e, node, operations) =>{
-                    console.log("selected", node)
                     if(this.state.selected){
                         this.state.selected.data.selected=false;
                     }
                     node.data.selected=true;
-                    if(operations && operations.expandNode){
-                        operations.expandNode(node);
+                    const path:(string|number)[] = [];
+                    if(operations && operations.expandNode ){
+                        const ancestors = node.ancestors();
+                        operations.expandNode&&operations.expandNode(node);
+                        operations.collapseAll&&operations.collapseAll((n)=>!ancestors.includes(n as TreeNode));
                     }
+                    
                     this.setState({selected:node});
                 }}
                 nodeChildren={(node, ops) => {
@@ -105,40 +115,14 @@ class CustomizedView extends React.Component {
 									<svg
 										width="25"
 										height="25"
-										x={
-											node.depth > 0
-												? -(
-														width /
-														2
-												  ) - 12.5
-												: -25 / 2
-										}
+										x = {node.depth > 0 ? -(width / 2) - 12.5 : -25 / 2}
 										onClick={ev => {
 											ev.preventDefault();
-											const selected = this
-												.state
-												.selected;
-											selected!.children =
-												selected!
-													.children ||
-												[];
-											if (
-												ops.addNode
-											) {
-												selected!.children.push(
-													ops.addNode(
-														node
-													)
-												);
-											}
+											const selected = this.state.selected;
+											selected!.children = selected!.children || [];
+											if (ops.addNode) selected!.children.push(ops.addNode(node));
 										}}
-										y={
-											node.depth > 0
-												? 0
-												: width /
-														2 -
-												  25 / 2
-										}
+										y = {node.depth>0? 0 : width/2 - 25/2}
 									>
                                         <AnimatedPlus/>
 									</svg>
@@ -147,28 +131,12 @@ class CustomizedView extends React.Component {
 										<svg
 											width="25"
 											height="25"
-											x={
-												width / 2 -
-												12.5
-											}
+											x={width/2 - 12.5}
 											y={0}
 											onClick={ev => {
 												ev.preventDefault();
-												const selected = this
-													.state
-													.selected;
-												if (
-													ops.removeNode &&
-													selected
-												) {
-													this.setState(
-														{
-															selected: ops.removeNode(
-																selected
-															)
-														}
-													);
-												}
+												const selected = this.state.selected;
+												if (ops.removeNode && selected) this.setState({selected: ops.removeNode(selected)});
 											}}
 										>
                                             <AnimatedBin/>
