@@ -63,8 +63,8 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 		let sizeHeight: number;
 		if (layout === "polar") {
 			origin = {
-				x: innerWidth / 2,
-				y: innerHeight / 2
+				x: (innerWidth / 2)+24, //not completely sure why i have to do this but works
+				y: (innerHeight / 2)+24
 			};
 			sizeWidth = 2 * Math.PI;
 			sizeHeight = Math.min(innerWidth, innerHeight) / 2;
