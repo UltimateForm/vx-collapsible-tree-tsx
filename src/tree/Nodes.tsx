@@ -82,6 +82,7 @@ class NodesMove extends Component<NodesMoveProps> {
 					};
 				}}
 				leave={node => {
+                    if(!node.parent)alert("alert bug node parent is null")
 					const collapsedParent = findCollapsedParent(node.parent);
 					const collapsedParentPrevPos:TreeNode = {
                         ...collapsedParent!,//assume not null because root (only parentless node, will never leave)

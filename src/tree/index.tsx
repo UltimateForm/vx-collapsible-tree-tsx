@@ -134,9 +134,13 @@ class CustomizedView extends React.Component {
 											x={width/2 - 12.5}
 											y={0}
 											onClick={ev => {
-												ev.preventDefault();
+                                                ev.preventDefault();
 												const selected = this.state.selected;
-												if (ops.removeNode && selected) this.setState({selected: ops.removeNode(selected)});
+                                                if (ops.removeNode && selected){
+                                                    const parent = ops.removeNode(selected);
+                                                    parent.data.selected = true;
+                                                    this.setState({selected: parent});
+                                                } 
 											}}
 										>
                                             <AnimatedBin/>

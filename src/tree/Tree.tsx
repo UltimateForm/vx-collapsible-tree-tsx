@@ -120,7 +120,7 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
                     if(!parentNode || !parentNode.data.children)throw `Expected defined parent with defined children but got ${parentNode}`
                     parentNode.data.children = parentNode.data.children.filter(i=>i.name!==node.data.name)
                     parentNode.children = parentNode.children!.filter(i=>i.data.name!==node.data.name)
-                    node.parent=null;
+                    // node.parent=null; //was causing exceptions, check utils.findCollapsedParent
 					return parentNode;
 				},
 			expandNode:
@@ -147,10 +147,11 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
             expandAll:
                 props.expandAll ||
                 function(selector){
-                    root.descendants().forEach((i)=>{
+                    const mockRoot = hierarchy(data);
+                    mockRoot.descendants().forEach((i)=>{
                         (i as TreeNode).data.isExpanded=selector===undefined? true : selector(i as TreeNode); 
                     })
-                    return root as TreeNode;
+                    return mockRoot as TreeNode;
                 }
 
 		};
