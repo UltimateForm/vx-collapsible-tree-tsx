@@ -20,6 +20,10 @@ const selectedRoute = (node:TreeNode):(string|number)[] => {
     return route;
 };
 
+type Layout = 'cartesian' | 'polar';
+type Orientation = 'horizontal' | 'vertical';
+type Link = 'diagonal' | 'step' | 'curve' | 'line' | 'elbow';
+
 const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 	const {
 		data,
@@ -39,9 +43,9 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
         nodeChildren
 	} = props;
 
-	const [layout, setlayout] = React.useState<string>("cartesian");
-	const [orientation, setOrientation] = React.useState<string>("horizontal");
-	const [linkType, setLinkType] = React.useState<string>("diagonal");
+	const [layout, setlayout] = React.useState<Layout>("cartesian");
+	const [orientation, setOrientation] = React.useState<Orientation>("horizontal");
+	const [linkType, setLinkType] = React.useState<Link>("diagonal");
 	const [stepPercent, setStepPercent] = React.useState<number>(0.5);
 	const [r, forceUpdate] = React.useState<boolean>(false); //i know...
 
@@ -97,7 +101,7 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
     let rs:(string|number)[] = [];
     const selectedNode = root.descendants().find(i=>i.data.selected) as TreeNode;
     if(selectedNode)routeSelected=selectedRoute(selectedNode);
-    // JSON.stringify(data)
+    // JSON.stringify(data) //shit son
 	const forceRefresh = () => {
 		forceUpdate(prev => !prev); 
     };
@@ -167,7 +171,7 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 			<div>
 				<label>layout:</label>
 				<select
-					onChange={e => setlayout(e.target.value)}
+					onChange={e => setlayout(e.target.value as Layout)}
 					value={layout}
 				>
 					<option value="cartesian">cartesian</option>
@@ -176,7 +180,7 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 
 				<label>orientation:</label>
 				<select
-					onChange={e => setOrientation(e.target.value)}
+					onChange={e => setOrientation(e.target.value as Orientation)}
 					value={orientation}
 					disabled={layout === "polar"}
 				>
@@ -186,7 +190,7 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 
 				<label>link:</label>
 				<select
-					onChange={e => setLinkType(e.target.value)}
+					onChange={e => setLinkType(e.target.value as Link)}
 					value={linkType}
 				>
 					<option value="diagonal">diagonal</option>

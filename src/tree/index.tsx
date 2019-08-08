@@ -188,4 +188,5 @@ class CustomizedView extends React.Component {
         );
     }
 }
+
 export default CustomizedView;
