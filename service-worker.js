@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/vx-collapsible-tree-tsx/precache-manifest.97b4ff99c57fbd8c9438fa630b75321b.js"
+  "/vx-collapsible-tree-tsx/precache-manifest.a4dcb8b1fda3d8c6038318d8e3bd09ed.js"
 );
 
 self.addEventListener('message', (event) => {
