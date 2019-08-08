@@ -85,13 +85,19 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 			sizeHeight
 		};
     }, [layout, innerWidth, innerHeight, orientation]);
-	const [root, routeSelected] = React.useMemo(() => {
-        const newRoot = hierarchy(data, d => (d.isExpanded ? d.children : null));
-        let rs:(string|number)[] = [];
-        const selectedNode = newRoot.descendants().find(i=>i.data.selected) as TreeNode;
-        if(selectedNode)rs=selectedRoute(selectedNode);
-		return [newRoot, rs];
-    }, [JSON.stringify(data)]);
+	// const [root, routeSelected] = React.useMemo(() => {
+    //     const newRoot = hierarchy(data, d => (d.isExpanded ? d.children : null));
+    //     let rs:(string|number)[] = [];
+    //     const selectedNode = newRoot.descendants().find(i=>i.data.selected) as TreeNode;
+    //     if(selectedNode)rs=selectedRoute(selectedNode);
+	// 	return [newRoot, rs];
+    // }, [JSON.stringify(data)]);
+    const root = hierarchy(data, d => (d.isExpanded ? d.children : null));
+    let routeSelected:(string|number)[] = [];
+    let rs:(string|number)[] = [];
+    const selectedNode = root.descendants().find(i=>i.data.selected) as TreeNode;
+    if(selectedNode)routeSelected=selectedRoute(selectedNode);
+    // JSON.stringify(data)
 	const forceRefresh = () => {
 		forceUpdate(prev => !prev); 
     };
@@ -156,7 +162,6 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 
 		};
     }, [{...props as TreeOperations}]);
-
 	return (
 		<div>
 			<div>

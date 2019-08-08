@@ -7,8 +7,8 @@ import shortId from "shortid";
 import {useSpring, animated} from 'react-spring'
 export { default as ScaledTree } from "./ScaledTree";
 
-const DefaultView: FC = props => {
-	return <Tree data={data} width={600} height={500} />;
+const DefaultView: FC<TreeProps> = (props:TreeProps) => {
+	return <Tree data={data} width={600} height={500} {...props} />;
 };
 
 const AnimatedPlus: FC = () => {
@@ -61,12 +61,45 @@ const AnimatedBin: FC = () => {
 class CustomizedView extends React.Component {
     constructor (props:{[key:string]:any}) {
         super(props)
-        this.state={
-            data:{ name: "root", id:shortId.generate() },
-            selected:null
-        }
+        this.state = {
+			data: { name: "root", id: shortId.generate() },
+			selected: null
+        };
+        const a = 223434;
+        this.generateData(3, Math.pow(4, 6));
     }
     
+    generateData = (breadth:number, maxNodes:number)=>{
+        const daBois:TreeNodeData[]= [this.state.data];
+        alert("will generate "+ maxNodes.toString() + " nodes")
+        for (let i = 0; daBois.length<maxNodes ; i++) {
+            const node = daBois[i];
+            for (let b = 0; b < breadth; b++) {
+                node.children = node.children || [];
+                node.children[b] = {
+                    id: shortId.generate(),
+                    name: `${node.name}.${(node.children &&
+                        node.children.length) ||
+                        0}`
+                }
+                daBois.push(node.children[b]);
+            }
+        }
+		// let impregnate = (node:TreeNodeData, gens:number, breadth:number) => { //i suspect this bad for performance
+        //     node.children = node.children || [];
+		// 	for (let k = 0; k < breadth; k++) {
+		// 		node.children[k] = {
+        //             id: "etc",
+        //             name: `${node.name}.${(node.children &&
+        //                 node.children.length) ||
+        //                 0}`
+        //         }
+		// 		if (gens > 0) impregnate(node.children[k], (gens - 1), breadth)
+		// 	}
+		// }
+		// impregnate(this.state.data, levels - 1, breadth);
+    }
+
     state:{
         data:TreeNodeData
         selected:TreeNode|null
@@ -76,17 +109,17 @@ class CustomizedView extends React.Component {
         const {
             props,
         } = this;
-
+        // return <div></div>
         return (
             <ScaledTree
                 data={this.state.data}
-                onCanvasClick={(e, operations)=>{
-                    if(this.state.selected){
-                        this.state.selected.data.selected=false;
-                    }
-                    this.setState({selected:null});
-                    operations && operations.expandAll && operations.expandAll();
-                }}
+                // onCanvasClick={(e, operations)=>{
+                //     if(this.state.selected){
+                //         this.state.selected.data.selected=false;
+                //     }
+                //     this.setState({selected:null});
+                //     operations && operations.expandAll && operations.expandAll();
+                // }}
                 width={600}
                 height={500}
                 onNodeClick={(e, node, operations) =>{
@@ -98,7 +131,7 @@ class CustomizedView extends React.Component {
                     if(operations && operations.expandNode ){
                         const ancestors = node.ancestors();
                         operations.expandNode&&operations.expandNode(node);
-                        operations.collapseAll&&operations.collapseAll((n)=>!ancestors.includes(n as TreeNode));
+                        // operations.collapseAll&&operations.collapseAll((n)=>!ancestors.includes(n as TreeNode));
                     }
                     
                     this.setState({selected:node});
