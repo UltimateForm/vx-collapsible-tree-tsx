@@ -5,6 +5,7 @@ import ScaledTree from "./ScaledTree";
 import data from "./data";
 import shortId from "shortid";
 import {useSpring, animated} from 'react-spring'
+import  {getPath} from './utils';
 export { default as ScaledTree } from "./ScaledTree";
 
 const DefaultView: FC<TreeProps> = (props:TreeProps) => {
@@ -65,8 +66,7 @@ class CustomizedView extends React.Component {
 			data: { name: "root", id: shortId.generate() },
 			selected: null
         };
-        const a = 223434;
-        this.generateData(3, Math.pow(4, 6));
+        this.generateData(4, Math.pow(4, 6));
     }
     
     generateData = (breadth:number, maxNodes:number)=>{
@@ -113,6 +113,7 @@ class CustomizedView extends React.Component {
         return (
             <ScaledTree
                 data={this.state.data}
+                onChange={(src, value,data)=>console.log(`${src} changed to ${value}, node->${data.name}`)}
                 // onCanvasClick={(e, operations)=>{
                 //     if(this.state.selected){
                 //         this.state.selected.data.selected=false;
@@ -133,7 +134,6 @@ class CustomizedView extends React.Component {
                         operations.expandNode&&operations.expandNode(node);
                         // operations.collapseAll&&operations.collapseAll((n)=>!ancestors.includes(n as TreeNode));
                     }
-                    
                     this.setState({selected:node});
                 }}
                 nodeChildren={(node, ops) => {

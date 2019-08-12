@@ -1,5 +1,6 @@
-import { TreeNode } from './types';
+import { TreeNode, TreeNodeData } from './types';
 import { pointRadial } from "d3-shape";
+import _ from 'lodash';
 
 export const findCollapsedParent =(node:TreeNode):TreeNode|null=> {
 	if (!node.data.isExpanded || !node.parent) {
@@ -30,4 +31,17 @@ export const getTopLeft = (node:TreeNode, layout:string, orientation:string) => 
 			left: node.y - ((node.depth===0? -1:1)*(node.data && node.data.renderWidth! / 2) || 0)
 		};
 	}
+}
+
+export const getPath=(node:TreeNode, key:string=""):string=>{ 
+    if(node.depth===0) return key;
+    const ancestors = node.ancestors();
+    let path = "";
+    for (let i = 0; i < node.depth; i++) {
+        const iNode = ancestors[i];
+        let iPath = `children[${iNode.parent!.children!.indexOf(iNode)}]`;
+        if(iNode!==node)iPath+='.'+path
+        path = iPath;
+    }
+    return key? path + '.' + key : path;
 }

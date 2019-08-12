@@ -15,7 +15,8 @@ const Node: FC<NodeProps> = props => {
 	    onNodeMouseEnter,
         onNodeMouseLeave,
         children,
-        operations
+        operations,
+        onNodeChange
 	} = props;
 	const [rect, setRect] = useState<Vector2 | undefined>(undefined);
 	const width = (rect && rect.x) || 20;
@@ -31,7 +32,9 @@ const Node: FC<NodeProps> = props => {
 			y: elementRect.height + rectOffset.y
 		});
 		node.data.renderWidth = elementRect.width + rectOffset.x;
-		node.data.renderHeight = elementRect.height + rectOffset.y;
+        node.data.renderHeight = elementRect.height + rectOffset.y;
+        onNodeChange && onNodeChange('renderWidth', node.data.renderWidth, node);
+        onNodeChange && onNodeChange('renderHeight', node.data.renderHeight, node);
     }, [refCallback]);
     const events = React.useMemo<NodeEvents>(()=>{
         return{

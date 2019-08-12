@@ -8,6 +8,7 @@ import Nodes from "./Nodes";
 import _ from "lodash";
 import { TreeProps, Vector2, TreeNode, TreeOperations, NodeEvents } from "./types";
 import shortId from "shortid";
+import { getPath } from "./utils";
 
 const useForceUpdate = () => {
 	const [, setState] = React.useState();
@@ -40,7 +41,8 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
         onCanvasHover,
         onCanvasMouseEnter,
         onCanvasMouseLeave,
-        nodeChildren
+        nodeChildren,
+        onChange
 	} = props;
 
 	const [layout, setlayout] = React.useState<Layout>("cartesian");
@@ -119,7 +121,11 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
                             id:shortId.generate()
 						}
                     ];
-                    node.data.isExpanded= true;
+                    node.data.isExpanded= true;            
+                    if(onChange){
+                        let src = getPath(node, 'children');
+                        onChange(src, node.data.children, node.data);
+                    }
                     forceRefresh();
 					return node;
 				},
@@ -131,6 +137,10 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
                     parentNode.data.children = parentNode.data.children.filter(i=>i.name!==node.data.name)
                     parentNode.children = parentNode.children!.filter(i=>i.data.name!==node.data.name)
                     // node.parent=null; //was causing exceptions, check utils.findCollapsedParent
+                    if(onChange){
+                        let src = getPath(parentNode, 'children');
+                        onChange(src, parentNode.data.children, parentNode.data);
+                    }
 					return parentNode;
 				},
 			expandNode:
@@ -141,16 +151,25 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 						node.data.y0 = node.y;
 					}
                     node.data.isExpanded = !node.data.isExpanded;
-					forceRefresh();
+                    if(onChange){
+                        let src = getPath(node, 'isExpanded');
+                        onChange(src, node.data.isExpanded , node.data);
+                    }
+                    forceRefresh();
 					return node;
                 },
             collapseAll:
                 props.collapseAll ||
                 function(selector){
                     root.descendants().forEach((i)=>{
-                        (i as TreeNode).data.isExpanded=selector===undefined? false : !selector(i as TreeNode); 
+                        const node = i as TreeNode;
+                        node.data.isExpanded=selector===undefined? false : !selector(i as TreeNode); 
                         //tried with the pretty way, more readable like this
                     })
+                    if(onChange){
+                        let src = 'children';
+                        onChange(src, root.data.children, root.data);
+                    }
                     return root as TreeNode;
                     
                 },
@@ -161,9 +180,12 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
                     mockRoot.descendants().forEach((i)=>{
                         (i as TreeNode).data.isExpanded=selector===undefined? true : selector(i as TreeNode); 
                     })
+                    if(onChange){
+                        let src = 'children';
+                        onChange(src, mockRoot.data.children, mockRoot.data);
+                    }
                     return mockRoot as TreeNode;
                 }
-
 		};
     }, [{...props as TreeOperations}]);
 	return (
@@ -255,6 +277,7 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
                                     orientation={orientation}
                                     operations={operations}
                                     nodeChildren={nodeChildren}
+                                    onNodeChange={(src, value, node)=>onChange && onChange(getPath(node, src), value, node.data)}
                                     {...props as NodeEvents}
 								/>
 							</Group>

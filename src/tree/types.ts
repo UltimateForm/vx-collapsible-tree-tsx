@@ -25,6 +25,7 @@ export interface TreeOperations {
 }
 
 export interface NodeEvents {
+    onNodeChange?:(source:string, value:any, node:TreeNode)=>void;
 	onNodeClick?: (
 		event: React.MouseEvent<SVGElement, MouseEvent>,
         node: TreeNode,
@@ -92,7 +93,7 @@ export interface TreeProps extends TreeOperations, NodeEvents, CanvasEvents {
 	height: number;
     margin?: Anchors;
     nodeChildren?:(node:TreeNode, ops:TreeOperations)=>any;
-
+    onChange?:(source:string, value:any, data:TreeNodeData)=>void;
 }
 export interface TreeState {
 	layout: string;
