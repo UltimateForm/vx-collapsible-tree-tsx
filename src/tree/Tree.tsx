@@ -101,7 +101,7 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
     const root = hierarchy(data, d => (d.isExpanded ? d.children : null));
     let routeSelected:(string|number)[] = [];
     let rs:(string|number)[] = [];
-    const selectedNode = root.descendants().find(i=>i.data.selected) as TreeNode;
+    const selectedNode = root.descendants().find(i=>!!i.data.selected) as TreeNode;
     if(selectedNode)routeSelected=selectedRoute(selectedNode);
     // JSON.stringify(data) //shit son
 	const forceRefresh = () => {
@@ -161,14 +161,17 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
             collapseAll:
                 props.collapseAll ||
                 function(selector){
-                    root.descendants().forEach((i)=>{
+                    if(!root.children || root.children.length===0)return root as TreeNode;
+                    const descendants = root.descendants();
+                    descendants.forEach((i)=>{
                         const node = i as TreeNode;
-                        node.data.isExpanded=selector===undefined? false : !selector(i as TreeNode); 
+                        node.data.isExpanded=selector===undefined? false : !selector(node); 
                         //tried with the pretty way, more readable like this
                     })
                     if(onChange){
+                        if(selector===undefined || selector(root as TreeNode))onChange('isExpanded', false, root.data);
                         let src = 'children';
-                        onChange(src, root.data.children, root.data);
+                        onChange(src, [...(root.data.children||[])], root.data);
                     }
                     return root as TreeNode;
                     
@@ -176,13 +179,18 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
             expandAll:
                 props.expandAll ||
                 function(selector){
+                    if(!data.children || data.children.length===0){
+                        onChange && onChange('isExpanded', true, root.data);
+                        return root as TreeNode;
+                    }
                     const mockRoot = hierarchy(data);
                     mockRoot.descendants().forEach((i)=>{
                         (i as TreeNode).data.isExpanded=selector===undefined? true : selector(i as TreeNode); 
                     })
                     if(onChange){
+                        if(selector===undefined || selector(mockRoot as TreeNode))onChange('isExpanded', true, root.data);
                         let src = 'children';
-                        onChange(src, mockRoot.data.children, mockRoot.data);
+                        onChange(src, [...(mockRoot.data.children||[])], mockRoot.data);
                     }
                     return mockRoot as TreeNode;
                 }

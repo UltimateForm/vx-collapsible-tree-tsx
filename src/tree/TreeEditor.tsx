@@ -1,16 +1,9 @@
-import { TreeProps, TreeNodeData, TreeNode } from "./types";
-import React, { FC, useState } from "react";
-import Tree from "./Tree";
-import ScaledTree from "./ScaledTree";
-import data from "./data";
+import React, {FC} from 'react';
 import shortId from "shortid";
-import {useSpring, animated} from 'react-spring'
-export {default as TreeEditor} from "./TreeEditor";
-export { default as ScaledTree } from "./ScaledTree";
-
-const DefaultView: FC<TreeProps> = (props:TreeProps) => {
-	return <Tree data={data} width={600} height={500} {...props} />;
-};
+import {useSpring, animated} from 'react-spring';
+import ScaledTree from "./ScaledTree";
+import { TreeProps, TreeNodeData, TreeNode } from "./types";
+import { getPath } from './utils';
 
 const AnimatedPlus: FC = () => {
     const cicleSpring = useSpring({r: 12.5, from: {r:0,}, })
@@ -59,76 +52,71 @@ const AnimatedBin: FC = () => {
 		</>
 	);
 };
-class CustomizedView extends React.Component {
-    constructor (props:{[key:string]:any}) {
+
+interface IState{
+    selected:TreeNode|null
+};
+interface TreeEditorProps extends TreeProps{
+    onSelected?:(node:TreeNode)=>void;
+    change?:(source:string, value:any)=>void;
+}
+class TreeEditor extends React.Component<TreeEditorProps, IState> {
+    constructor (props:TreeEditorProps) {
         super(props)
         this.state = {
-			data: { name: "root", id: shortId.generate() },
 			selected: null
         };
-        this.generateData(4, Math.pow(4, 6));
-    }
-    
-    generateData = (breadth:number, maxNodes:number)=>{
-        const daBois:TreeNodeData[]= [this.state.data];
-        alert("will generate "+ maxNodes.toString() + " nodes")
-        for (let i = 0; daBois.length<maxNodes ; i++) {
-            const node = daBois[i];
-            for (let b = 0; b < breadth; b++) {
-                node.children = node.children || [];
-                node.children[b] = {
-                    id: shortId.generate(),
-                    name: `${node.name}.${(node.children &&
-                        node.children.length) ||
-                        0}`
-                }
-                daBois.push(node.children[b]);
-            }
-        }
-		// let impregnate = (node:TreeNodeData, gens:number, breadth:number) => { //i suspect this bad for performance
-        //     node.children = node.children || [];
-		// 	for (let k = 0; k < breadth; k++) {
-		// 		node.children[k] = {
-        //             id: "etc",
-        //             name: `${node.name}.${(node.children &&
-        //                 node.children.length) ||
-        //                 0}`
-        //         }
-		// 		if (gens > 0) impregnate(node.children[k], (gens - 1), breadth)
-		// 	}
-		// }
-		// impregnate(this.state.data, levels - 1, breadth);
     }
 
-    state:{
-        data:TreeNodeData
-        selected:TreeNode|null
-    };
+    data:TreeNodeData={ name: "root gay", id: shortId.generate() };
 
     render() {
         const {
             props,
         } = this;
-        // return <div></div>
+        const localdata = props.data||this.data;
         return (
             <ScaledTree
-                data={this.state.data}
-                onChange={(src, value,data)=>console.log(`${src} changed to ${value}, node->${data.name}`)}
+                data={localdata}
+                onChange={(src, value, data)=>props.change && props.change(src, value)}
+                onCanvasClick={(e, operations)=>{
+                    operations && operations.expandAll && operations.expandAll();
+                    if(this.state.selected){
+                        this.state.selected.data.selected=false;
+                        if(props.change){
+                            const src = getPath(this.state.selected, 'selected');
+                            props.change && props.change(src,false);
+                        }
+                    }
+                    this.setState({selected:null});
+                }}
                 width={600}
                 height={500}
                 onNodeClick={(e, node, operations) =>{
+                    if(operations){
+                        const ancestors = node.ancestors();
+                        !node.data.isExpanded && operations.expandNode && operations.expandNode(node);
+                        operations.collapseAll&&operations.collapseAll((n)=>!ancestors.some((a)=>a.data.id===n.data.id));
+                    }
+
                     if(this.state.selected){
                         this.state.selected.data.selected=false;
+                        if(props.change){
+                            const src = getPath(this.state.selected, 'selected');
+                            props.change && props.change(src,false);
+                        }
                     }
+
                     node.data.selected=true;
-                    const path:(string|number)[] = [];
-                    if(operations && operations.expandNode ){
-                        const ancestors = node.ancestors();
-                        operations.expandNode&&operations.expandNode(node);
-                        // operations.collapseAll&&operations.collapseAll((n)=>!ancestors.includes(n as TreeNode));
-                    }
-                    this.setState({selected:node});
+                    this.setState({selected:node}, ()=>{
+                        props.onSelected && props.onSelected(node);
+                        if(props.change){
+                            const src = getPath(node, 'selected');
+                            props.change && props.change(src,true);
+                        }
+                    });
                 }}
+                
                 nodeChildren={(node, ops) => {
                     if(!node.data.selected)return undefined;
                     const width = node.data.renderWidth || 0;
@@ -146,7 +134,9 @@ class CustomizedView extends React.Component {
 											ev.preventDefault();
 											const selected = this.state.selected;
 											selected!.children = selected!.children || [];
-											if (ops.addNode) selected!.children.push(ops.addNode(node));
+                                            if (ops.addNode) {
+                                                selected!.children.push(ops.addNode(node));
+                                            }                 
 										}}
 										y = {node.depth>0? 0 : width/2 - 25/2}
 									>
@@ -166,7 +156,8 @@ class CustomizedView extends React.Component {
                                                     const parent = ops.removeNode(selected);
                                                     parent.data.selected = true;
                                                     this.setState({selected: parent});
-                                                } 
+                                                    console.log("Removed lol", localdata)
+                                                    props.change && props.change("children",localdata.children);                                                } 
 											}}
 										>
                                             <AnimatedBin/>
@@ -182,4 +173,4 @@ class CustomizedView extends React.Component {
     }
 }
 
-export default CustomizedView;
+export default TreeEditor;
