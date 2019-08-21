@@ -2,7 +2,7 @@ import React, {FC} from 'react';
 import shortId from "shortid";
 import {useSpring, animated} from 'react-spring';
 import ScaledTree from "./ScaledTree";
-import { TreeProps, TreeNodeData, TreeNode } from "./types";
+import { TreeProps, TreeNodeData, TreeNode, ScaledTreeProps, TreeOperations } from "./types";
 import { getPath } from './utils';
 
 const AnimatedPlus: FC = () => {
@@ -56,7 +56,7 @@ const AnimatedBin: FC = () => {
 interface IState{
     selected:TreeNode|null
 };
-interface TreeEditorProps extends TreeProps{
+interface TreeEditorProps extends ScaledTreeProps{
     onSelected?:(node:TreeNode)=>void;
     change?:(source:string, value:any)=>void;
 }
@@ -69,6 +69,34 @@ class TreeEditor extends React.Component<TreeEditorProps, IState> {
     }
 
     data:TreeNodeData={ name: "root gay", id: shortId.generate() };
+
+    select = (e:any, node:TreeNode, operations?:TreeOperations)=>{
+        const {
+            props,
+        } = this;
+        if(operations){
+            const ancestors = node.ancestors();
+            !node.data.isExpanded && operations.expandNode && operations.expandNode(node);
+            operations.collapseAll && operations.collapseAll((n)=>!ancestors.some((a)=>a.data.id===n.data.id));
+        }
+
+        if(this.state.selected){
+            this.state.selected.data.selected=false;
+            if(props.change){
+                const src = getPath(this.state.selected, 'selected');
+                props.change && props.change(src,false);
+            }
+        }
+
+        node.data.selected=true;
+        this.setState({selected:node}, ()=>{
+            props.onSelected && props.onSelected(node);
+            if(props.change){
+                const src = getPath(node, 'selected');
+                props.change && props.change(src,true);
+            }
+        });
+    }
 
     render() {
         const {
@@ -90,33 +118,8 @@ class TreeEditor extends React.Component<TreeEditorProps, IState> {
                     }
                     this.setState({selected:null});
                 }}
-                width={600}
-                height={500}
-                onNodeClick={(e, node, operations) =>{
-                    if(operations){
-                        const ancestors = node.ancestors();
-                        !node.data.isExpanded && operations.expandNode && operations.expandNode(node);
-                        operations.collapseAll&&operations.collapseAll((n)=>!ancestors.some((a)=>a.data.id===n.data.id));
-                    }
+                onNodeClick={this.select}
 
-                    if(this.state.selected){
-                        this.state.selected.data.selected=false;
-                        if(props.change){
-                            const src = getPath(this.state.selected, 'selected');
-                            props.change && props.change(src,false);
-                        }
-                    }
-
-                    node.data.selected=true;
-                    this.setState({selected:node}, ()=>{
-                        props.onSelected && props.onSelected(node);
-                        if(props.change){
-                            const src = getPath(node, 'selected');
-                            props.change && props.change(src,true);
-                        }
-                    });
-                }}
-                
                 nodeChildren={(node, ops) => {
                     if(!node.data.selected)return undefined;
                     const width = node.data.renderWidth || 0;
@@ -151,13 +154,14 @@ class TreeEditor extends React.Component<TreeEditorProps, IState> {
 											y={0}
 											onClick={ev => {
                                                 ev.preventDefault();
-												const selected = this.state.selected;
+                                                const selected = this.state.selected;
+                                                if(this.state.selected && this.state.selected.data)console.log("selected is", this.state.selected.data)
                                                 if (ops.removeNode && selected){
-                                                    const parent = ops.removeNode(selected);
-                                                    parent.data.selected = true;
-                                                    this.setState({selected: parent});
-                                                    console.log("Removed lol", localdata)
-                                                    props.change && props.change("children",localdata.children);                                                } 
+                                                    const parent = selected.parent as TreeNode;
+                                                    this.select(ev, parent, ops);
+                                                    ops.removeNode(selected);
+                                                    props.change && props.change(getPath(parent, 'children') ,parent.data.children);
+                                                } 
 											}}
 										>
                                             <AnimatedBin/>
@@ -168,6 +172,8 @@ class TreeEditor extends React.Component<TreeEditorProps, IState> {
 						</>
 					);
                 }}
+
+                {...props as ScaledTreeProps}
             />
         );
     }
