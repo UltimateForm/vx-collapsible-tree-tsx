@@ -95,6 +95,10 @@ export interface TreeProps extends TreeOperations, NodeEvents, CanvasEvents {
     nodeChildren?:(node:TreeNode, ops:TreeOperations)=>any;
     onChange?:(source:string, value:any, data:TreeNodeData)=>void;
 }
+
+export interface ScaledTreeProps extends TreeProps{
+    classes?:any
+}
 export interface TreeState {
 	layout: string;
 	orientation: string;

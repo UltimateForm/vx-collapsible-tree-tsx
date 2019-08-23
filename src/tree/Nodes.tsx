@@ -102,7 +102,7 @@ class NodesMove extends Component<NodesMoveProps> {
 				}}
 			>
 				{nodes => (
-					<Group>
+   					<Group id={`${nodes[0].data.data.id}_nodes_group`}>
 						{nodes.sort((x, y)=>Number(x.data.data.selected||0)-Number(y.data.data.selected||0)).map(({ key, data: node, state }) => {
 							const width = 40;
                             const height = 20;
@@ -112,7 +112,8 @@ class NodesMove extends Component<NodesMoveProps> {
 									top={state.top}
 									left={state.left}
 									key={key}
-									opacity={state.opacity}
+                                    opacity={state.opacity}
+                                    id={`${node.data.id}_node_group`}
 								>
 									<Node
                                         operations={operations}

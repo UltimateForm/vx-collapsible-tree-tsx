@@ -1,10 +1,8 @@
 import * as React from "react";
 import { withStyles, createStyles } from "@material-ui/core/styles";
-import { Button } from "@material-ui/core";
 import Measure from "react-measure";
 import Tree from './Tree';
-import data from "./data";
-import { TreeNode, TreeProps } from "./types";
+import { TreeProps, ScaledTreeProps } from "./types";
 
 const styles = createStyles({
 	rootDiv: {
@@ -18,9 +16,6 @@ const styles = createStyles({
 	}
 });
 
-interface ScaledTreeProps extends TreeProps{
-    classes:any
-}
 const ScaledTree: React.FC<ScaledTreeProps> = (props:ScaledTreeProps) => {
     const [width, setWidth] = React.useState<number>(0);
     const [height, setHeight] = React.useState<number>(0);
