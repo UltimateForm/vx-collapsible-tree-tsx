@@ -22,8 +22,34 @@ const Node: FC<NodeProps> = props => {
 	const width = (rect && rect.x) || 20;
 	const height = (rect && rect.y) || 20;
 
-	const refCallback = useRef<SVGTextElement>(null);
-	useLayoutEffect(() => {
+    const events = React.useMemo<NodeEvents>(() => {
+		return {
+            onNodeChange:props.onNodeChange || function(source, value, node) {
+                console.log(`TREE.NODE Changed ${source} to ${value} on node ${node.data.id}`)
+            },
+			onNodeClick:
+				props.onNodeClick ||
+				function(ev, node, ops) {
+					ev.stopPropagation();
+					ops!.expandNode!(node);
+				},
+			onNodeDoubleClick:
+				props.onNodeDoubleClick ||
+				function(ev, node, ops) {
+					ev.stopPropagation();
+					console.log("onNodeDoubleClick undefined");
+				},
+			onNodeHover: props.onNodeHover || function(ev, node, ops) {},
+			onNodeMouseEnter:
+				props.onNodeMouseEnter || function(ev, node, ops) {},
+			onNodeMouseLeave:
+				props.onNodeMouseLeave || function(ev, node, ops) {}
+		};
+    }, [props.onNodeClick,props.onNodeDoubleClick,props.onNodeHover,operations]);
+
+    const refCallback = useRef<SVGTextElement>(null);
+
+    useLayoutEffect(() => {
 		//see https://github.com/hshoff/vx/issues/375
 		if (!refCallback.current) return;
 		const elementRect = refCallback.current.getBoundingClientRect();
@@ -33,29 +59,10 @@ const Node: FC<NodeProps> = props => {
 		});
 		node.data.renderWidth = elementRect.width + rectOffset.x;
         node.data.renderHeight = elementRect.height + rectOffset.y;
-        onNodeChange && onNodeChange('renderWidth', node.data.renderWidth, node);
-        onNodeChange && onNodeChange('renderHeight', node.data.renderHeight, node);
-    }, [refCallback]);
-    const events = React.useMemo<NodeEvents>(()=>{
-        return{
-             onNodeClick:props.onNodeClick||function(ev, node, ops){
-                ev.stopPropagation();
-                ops!.expandNode!(node);
-            },
-            onNodeDoubleClick:props.onNodeDoubleClick||function(ev, node, ops){
-                ev.stopPropagation();
-                console.log("onNodeDoubleClick undefined")
-            },
-            onNodeHover:props.onNodeHover||function(ev, node, ops){
+        events.onNodeChange('renderWidth', node.data.renderWidth, node);
+        events.onNodeChange('renderHeight', node.data.renderHeight, node);
+    }, [refCallback, node.data.name]);
 
-            },
-            onNodeMouseEnter:props.onNodeMouseEnter||function(ev, node, ops){
-            },
-            onNodeMouseLeave:props.onNodeMouseLeave||function(ev, node, ops){
-            }
-        }
-    }, [props.onNodeClick, props.onNodeDoubleClick, props.onNodeHover, operations]);
-    
 	return (
 		<Fragment>
 			{node.depth === 0 && (

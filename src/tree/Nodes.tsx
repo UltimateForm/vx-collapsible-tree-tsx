@@ -102,7 +102,7 @@ class NodesMove extends Component<NodesMoveProps> {
 				}}
 			>
 				{nodes => (
-   					<Group id={`${nodes[0].data.data.id}_nodes_group`}>
+   					<Group id={`vxTree_${nodes[0].data.data.id}_nodes_group`}>
 						{nodes.sort((x, y)=>Number(x.data.data.selected||0)-Number(y.data.data.selected||0)).map(({ key, data: node, state }) => {
 							const width = 40;
                             const height = 20;

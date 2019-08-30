@@ -17,36 +17,36 @@ export interface TreeNodeData {
 export interface TreeNode extends HierarchyNode<TreeNodeData>, INode {}
 
 export interface TreeOperations {
-	addNode?: (parent: TreeNode) => TreeNode;
-    removeNode?: (node: TreeNode) => TreeNode;
-    expandNode?: (node:TreeNode) => TreeNode;
-    collapseAll?: (selector?:(node:TreeNode)=>boolean) => TreeNode;
-    expandAll?: (selector?:(node:TreeNode)=>boolean)=> TreeNode;
+	addNode: (parent: TreeNode) => TreeNode;
+    removeNode: (node: TreeNode) => TreeNode;
+    expandNode: (node:TreeNode) => TreeNode;
+    collapseAll: (selector?:(node:TreeNode)=>boolean) => TreeNode;
+    expandAll: (selector?:(node:TreeNode)=>boolean)=> TreeNode;
 }
 
 export interface NodeEvents {
-    onNodeChange?:(source:string, value:any, node:TreeNode)=>void;
-	onNodeClick?: (
+    onNodeChange:(source:string, value:any, node:TreeNode)=>void;
+	onNodeClick: (
 		event: React.MouseEvent<SVGElement, MouseEvent>,
         node: TreeNode,
         operations?:TreeOperations
 	) => void;
-	onNodeDoubleClick?: (
+	onNodeDoubleClick: (
 		event: React.MouseEvent<SVGElement, MouseEvent>,
         node: TreeNode,
         operations?:TreeOperations
 	) => void;
-	onNodeHover?: (
+	onNodeHover: (
 		event: React.MouseEvent<SVGElement, MouseEvent>,
         node: TreeNode,
         operations?:TreeOperations
     ) => void;
-    onNodeMouseLeave?: (
+    onNodeMouseLeave: (
 		event: React.MouseEvent<SVGElement, MouseEvent>,
         node: TreeNode,
         operations?:TreeOperations
     ) => void;
-    onNodeMouseEnter?: (
+    onNodeMouseEnter: (
 		event: React.MouseEvent<SVGElement, MouseEvent>,
         node: TreeNode,
         operations?:TreeOperations
@@ -54,23 +54,23 @@ export interface NodeEvents {
 }
 
 export interface CanvasEvents{
-    onCanvasClick?: (
+    onCanvasClick: (
 		event: React.MouseEvent<SVGElement, MouseEvent>,
         operations?:TreeOperations
 	) => void;
-	onCanvasDoubleClick?: (
+	onCanvasDoubleClick: (
 		event: React.MouseEvent<SVGElement, MouseEvent>,
         operations?:TreeOperations
 	) => void;
-	onCanvasHover?: (
+	onCanvasHover: (
 		event: React.MouseEvent<SVGElement, MouseEvent>,
         operations?:TreeOperations
     ) => void;
-    onCanvasMouseLeave?: (
+    onCanvasMouseLeave: (
 		event: React.MouseEvent<SVGElement, MouseEvent>,
         operations?:TreeOperations
     ) => void;
-    onCanvasMouseEnter?: (
+    onCanvasMouseEnter: (
 		event: React.MouseEvent<SVGElement, MouseEvent>,
         operations?:TreeOperations
 	) => void;
@@ -87,13 +87,14 @@ export interface Anchors {
 	right: number;
 }
 
-export interface TreeProps extends TreeOperations, NodeEvents, CanvasEvents {
+export interface TreeProps extends Partial<TreeOperations>, Partial<NodeEvents>, Partial<CanvasEvents> {
 	data: TreeNodeData;
 	width: number;
 	height: number;
     margin?: Anchors;
     nodeChildren?:(node:TreeNode, ops:TreeOperations)=>any;
     onChange?:(source:string, value:any, data:TreeNodeData)=>void;
+    onOpsReady?:(ops:TreeOperations)=>void;
 }
 
 export interface ScaledTreeProps extends TreeProps{
@@ -127,7 +128,7 @@ export interface NodesMoveProps extends NodeEvents {
     nodeChildren?:(node:TreeNode, ops:TreeOperations)=>any;
 }
 
-export interface NodeProps extends NodeEvents{
+export interface NodeProps extends Partial<NodeEvents>{
     node: TreeNode;
     operations: TreeOperations;
     children?:(node:TreeNode, ops:TreeOperations)=>any;

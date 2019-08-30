@@ -123,6 +123,7 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
                     ];
                     node.data.isExpanded= true;            
                     if(onChange){
+                        onChange(getPath(node, 'expanded'), true, node.data);
                         let src = getPath(node, 'children');
                         onChange(src, node.data.children, node.data);
                     }
@@ -196,6 +197,7 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
                 }
 		};
     }, [{...props as TreeOperations}]);
+    props.onOpsReady && props.onOpsReady(operations);
 	return (
 		<div>
 			<div>
@@ -248,6 +250,7 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
             >
 				<LinearGradient id="lg" from="#fd9b93" to="#fe6e9e" />
 				<rect
+                    id="vxTree_canvas"
 					width={effectiveWidth}
 					height={effectiveHeight}
 					rx={14}

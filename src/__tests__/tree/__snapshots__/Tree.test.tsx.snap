@@ -217,6 +217,7 @@ exports[`Tree view basic matches snapshot 1`] = `
       <rect
         fill="#272b4d"
         height={372}
+        id="vxTree_canvas"
         onClick={[Function]}
         onDoubleClick={[Function]}
         onMouseEnter={[Function]}
@@ -13518,11 +13519,11 @@ exports[`Tree view basic matches snapshot 1`] = `
                 update={[Function]}
               >
                 <t
-                  id="1_nodes_group"
+                  id="vxTree_1_nodes_group"
                 >
                   <g
                     className="vx-group"
-                    id="1_nodes_group"
+                    id="vxTree_1_nodes_group"
                     transform="translate(0, 0)"
                   >
                     <t
