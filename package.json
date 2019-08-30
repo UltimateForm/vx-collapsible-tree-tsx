@@ -19,16 +19,18 @@
         "d3-hierarchy": "^1.1.8",
         "prop-types": "^15.7.2",
         "react": "^16.9.0",
-        "react-dom": "^16.8.6",
+        "react-dom": "^16.9.0",
         "react-measure": "^2.3.0",
         "react-move": "^6.0.0",
-        "react-scripts": "3.0.1",
+        "react-scripts": "3.1.1",
         "react-spring": "^8.0.27",
         "shortid": "^2.2.14",
         "typescript": "3.5.3"
     },
-    "jest":{
-        "snapshotSerializers": ["enzyme-to-json/serializer"]
+    "jest": {
+        "snapshotSerializers": [
+            "enzyme-to-json/serializer"
+        ]
     },
     "scripts": {
         "predeploy": "npm run build",
