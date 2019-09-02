@@ -49,7 +49,7 @@ describe('Tree view basic', () => {
 		const renderedNames = wrapperNodes.map(i => i.text()).sort();
 		const names = nodes.map(i => i.data.name).sort();
 		const ids = nodes.map(i => i.data.id).sort();
-		expect(wrapperNodes.length).toBe(nodes.length);
+		expect(wrapperNodes).toHaveLength(nodes.length);
 		expect(ids).toEqual(renderedIds);
 		expect(names).toEqual(renderedNames);
     });
@@ -103,8 +103,8 @@ describe('Tree node events', () => {
     };
 
     const assureValidMock = (testMock:jest.Mock, evType:string, node:TreeNode)=>{
-        expect(testMock.mock.calls.length).toBe(1);
-        expect(testMock.mock.calls[0].length).toBe(3)
+        expect(testMock.mock.calls).toHaveLength(1);
+        expect(testMock.mock.calls[0]).toHaveLength(3)
         expect(testMock.mock.calls[0][0]['type']).toBe(evType)
         expect(testMock.mock.calls[0][1]).toMatchObject<TreeNode>(node)
         expect(typeof testMock.mock.calls[0][2]).toBe('object');
@@ -161,14 +161,14 @@ describe('Tree node events', () => {
         const {firstTreeNode, wrapper } = getTree({
             onNodeChange: changeNodeMock,
 		});
-        expect(changeNodeMock.mock.calls.length).toBe(2);
+        expect(changeNodeMock.mock.calls).toHaveLength(2);
         expect(changeNodeMock.mock.calls[0][0]).toBe('renderWidth');
         expect(changeNodeMock.mock.calls[1][0]).toBe('renderHeight');
         // wrapper.setProps({data:{...firstTreeNode.data, name:'extra root'}});
         act(()=>{
             wrapper.setProps({data:{...firstTreeNode.data, name:'extra root'}});
         })
-        expect(changeNodeMock.mock.calls.length).toBe(4);
+        expect(changeNodeMock.mock.calls).toHaveLength(4);
         expect(changeNodeMock.mock.calls.every((i)=>i.length===3)).toBe(true);
         expect(changeNodeMock.mock.calls[2][0]).toBe('renderWidth');
         expect(changeNodeMock.mock.calls[3][0]).toBe('renderHeight');
@@ -178,8 +178,8 @@ describe('Tree node events', () => {
 describe('Tree upper level events', () =>{
     
     const assureValidMock = (testMock:jest.Mock, evType:string)=>{
-        expect(testMock.mock.calls.length).toBe(1);
-        expect(testMock.mock.calls[0].length).toBe(2)
+        expect(testMock.mock.calls).toHaveLength(1);
+        expect(testMock.mock.calls[0]).toHaveLength(2)
         expect(testMock.mock.calls[0][0]['type']).toBe(evType)
         expect(typeof testMock.mock.calls[0][1]).toBe('object');
         assureValidOperations(testMock.mock.calls[0][1]);
@@ -237,15 +237,15 @@ describe('Tree upper level events', () =>{
             onOpsReady:(ops:TreeOperations)=>{operations={...ops}},
             onChange:changeMock
         });
-        expect(changeMock.mock.calls.length).toBe(2);
+        expect(changeMock.mock.calls).toHaveLength(2);
         act(()=>{
             operations.addNode!(firstTreeNode);
         })
-        expect(changeMock.mock.calls.length).toBe(6);
+        expect(changeMock.mock.calls).toHaveLength(6);
         act(()=>{
             operations.collapseAll!();
         })
-        expect(changeMock.mock.calls.length).toBe(8);
+        expect(changeMock.mock.calls).toHaveLength(8);
         expect(changeMock.mock.calls.every((call)=>call.length===3)).toBe(true);
     });
 });
@@ -259,12 +259,12 @@ describe('Tree operations', ()=>{
             addNode:addNodeMock,
             onOpsReady:(opers)=>ops={...opers}
         })
-        expect(addNodeMock.mock.calls.length).toBe(0);
+        expect(addNodeMock.mock.calls).toHaveLength(0);
         act(()=>{
             ops.addNode!(firstTreeNode);
         })
-        expect(addNodeMock.mock.calls.length).toBe(1);
-        expect(addNodeMock.mock.calls[0].length).toBe(1);
+        expect(addNodeMock.mock.calls).toHaveLength(1);
+        expect(addNodeMock.mock.calls[0]).toHaveLength(1);
         expect(addNodeMock.mock.calls[0][0]).toMatchObject({...firstTreeNode});
     })
 
@@ -278,8 +278,7 @@ describe('Tree operations', ()=>{
         act(()=>{
             ops.addNode!(firstTreeNode);
         });
-        expect(firstTreeNode.data.children).toBeTruthy();
-        expect(firstTreeNode.data.children!.length).toBe(1);
+        expect(firstTreeNode.data.children).toHaveLength(1);
     })
 
     it('runs custom expandNode correctly', ()=> {
@@ -289,10 +288,10 @@ describe('Tree operations', ()=>{
             expandNode:expandNodeMock,
             onOpsReady:(opers)=>ops={...opers}
         })
-        expect(expandNodeMock.mock.calls.length).toBe(0);
+        expect(expandNodeMock.mock.calls).toHaveLength(0);
         ops.expandNode!(firstTreeNode);
-        expect(expandNodeMock.mock.calls.length).toBe(1);
-        expect(expandNodeMock.mock.calls[0].length).toBe(1);
+        expect(expandNodeMock.mock.calls).toHaveLength(1);
+        expect(expandNodeMock.mock.calls[0]).toHaveLength(1);
         expect(expandNodeMock.mock.calls[0][0]).toMatchObject({...firstTreeNode});
     })
 
@@ -319,10 +318,10 @@ describe('Tree operations', ()=>{
             removeNode:removeNodeMock,
             onOpsReady:(opers)=>ops={...opers}
         })
-        expect(removeNodeMock.mock.calls.length).toBe(0);
+        expect(removeNodeMock.mock.calls).toHaveLength(0);
         ops.removeNode!(firstTreeNode);
-        expect(removeNodeMock.mock.calls.length).toBe(1);
-        expect(removeNodeMock.mock.calls[0].length).toBe(1);
+        expect(removeNodeMock.mock.calls).toHaveLength(1);
+        expect(removeNodeMock.mock.calls[0]).toHaveLength(1);
         expect(removeNodeMock.mock.calls[0][0]).toMatchObject({...firstTreeNode});
     })
 
@@ -350,12 +349,9 @@ describe('Tree operations', ()=>{
             },
             onOpsReady:(opers)=>ops={...opers}
         })
-        act(()=>{wrapper.update()})
-        expect(firstTreeNode.children).toBeTruthy();
-        expect(firstTreeNode.children!.length).toBe(3);
         const meowth = firstTreeNode.children!.find((c)=>c.data.id==='meowth')
         ops.removeNode!(meowth!);
-        expect(firstTreeNode.children!.length).toBe(2);
+        expect(firstTreeNode.children!).toHaveLength(2);
         expect(firstTreeNode.children!.find((c)=>c.data.id==='meowth')).toBeUndefined();
     })
 
@@ -366,10 +362,10 @@ describe('Tree operations', ()=>{
             expandAll:expandAllMock,
             onOpsReady:(opers)=>ops={...opers}
         })
-        expect(expandAllMock.mock.calls.length).toBe(0);
+        expect(expandAllMock.mock.calls).toHaveLength(0);
         ops.expandAll!();
-        expect(expandAllMock.mock.calls.length).toBe(1);
-        expect(expandAllMock.mock.calls[0].length).toBe(0);
+        expect(expandAllMock.mock.calls).toHaveLength(1);
+        expect(expandAllMock.mock.calls[0]).toHaveLength(0);
     })
 
     it('runs default expandAll correctly', ()=>{
@@ -415,19 +411,94 @@ describe('Tree operations', ()=>{
             },
             onOpsReady:(opers)=>ops={...opers}
         })
-        expect(firstTreeNode.children).toBeFalsy;
-        expect(wrapperNodes.length).toBe(1);
-        expect(firstTreeNode.data.isExpanded).toBeFalsy;
-        const expandedRoot = ops.expandAll!((n)=>n.depth===0 || !n.children)
+        let expandedRoot = ops.expandAll!((n)=>n.depth===0 || !n.children) //expand where depth = 0 and where node doesnt have children (root and mouseguy)
         wrapper.setProps({data:expandedRoot.data})
-        const wrapperNodesUpdated = wrapper.find(Node);
-        expect(firstTreeNode.data.isExpanded).toBe(true);
-        expect(wrapperNodesUpdated.length).toBe(4);
-        // expect(firstTreeNode.children!.length).toBe(3);
-        // expect(wrapperNodes.length).toBe(4);
-        // const meowth = firstTreeNode.children!.find((c)=>c.data.id==='meowth')
-        // ops.removeNode!(meowth!);
-        // expect(firstTreeNode.children!.length).toBe(2);
-        // expect(firstTreeNode.children!.find((c)=>c.data.id==='meowth')).toBeUndefined();
+        let wrapperNodesUpdated = wrapper.find(Node);
+        let firstTreeNodeUpdated = wrapperNodesUpdated.first().props().node;
+        expect(firstTreeNodeUpdated.data.isExpanded).toBe(true);
+        expect(wrapperNodesUpdated).toHaveLength(4);
+        expect(firstTreeNodeUpdated.children!).toHaveLength(3);
+        const meowth = firstTreeNodeUpdated.children!.find((c)=>c.data.id==='meowth')
+        expect(meowth!.data.isExpanded).toBe(true);
+        expandedRoot = ops.expandAll!();
+        wrapper.setProps({data:expandedRoot.data})
+        wrapperNodesUpdated = wrapper.find(Node);
+        expect(wrapperNodesUpdated).toHaveLength(8);
+    })
+
+    it('runs custom collapseAll correctly', ()=> {
+        const collapseAllMock = jest.fn();
+        let ops:Partial<TreeOperations> = {};
+        const {firstTreeNode} = getTree({
+            collapseAll:collapseAllMock,
+            onOpsReady:(opers)=>ops={...opers}
+        })
+        expect(collapseAllMock.mock.calls).toHaveLength(0);
+        ops.collapseAll!();
+        expect(collapseAllMock.mock.calls).toHaveLength(1);
+        expect(collapseAllMock.mock.calls[0]).toHaveLength(0);
+    })
+
+    it('runs default collapseAll correctly', ()=>{
+        let ops:Partial<TreeOperations> = {};
+        const {firstTreeNode, wrapperNodes, wrapper} = getTree({
+            data:{ //just keep this collapsed b
+                name:'Giovanni',
+                id:'Team Rocket',
+                isExpanded:true,
+                children:[
+                    {
+                        id:'james',
+                        name:'James',
+                        isExpanded:true,
+                        children:[
+                            {
+                                name:'Victreebel',
+                                id:'victreebel'
+                            },
+                            {
+                                name:'Hoppip',
+                                id:'hoppip'
+                            }
+                        ]
+                    },
+                    {
+                        id:'jessie',
+                        name:'Jessie',
+                        isExpanded:true,
+                        children:[
+                            {
+                                name:'Porygon Zero',
+                                id:'porygonzero'
+                            },
+                            {
+                                name:'Magikarp',
+                                id:'magikarp'
+                            }
+                        ]
+                    },
+                    {
+                        id:'meowth',
+                        name:'Meowth',
+                        isExpanded:true
+                    }
+                ]
+            },
+            onOpsReady:(opers)=>ops={...opers}
+        })
+        
+        let collapsedRoot = ops.collapseAll!((n)=>n.data.name.startsWith('Ja'))
+        wrapper.setProps({data:collapsedRoot.data});
+        let wrapperNodesUpdated = wrapper.find(Node);
+        let firstTreeNodeUpdated = wrapperNodesUpdated.first().props().node;
+        const james = firstTreeNodeUpdated.children![0]
+        expect(james!.children).toBeUndefined();
+        expect(firstTreeNodeUpdated.descendants()).toHaveLength(6);
+        collapsedRoot = ops.collapseAll!();
+        wrapper.setProps({data:collapsedRoot.data});
+        wrapperNodesUpdated = wrapper.find(Node);
+        firstTreeNodeUpdated = wrapperNodesUpdated.first().props().node;
+        expect(firstTreeNodeUpdated.descendants()).toHaveLength(1);
+        expect(firstTreeNodeUpdated.data.isExpanded).toBe(false);
     })
 });
