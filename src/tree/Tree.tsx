@@ -135,8 +135,8 @@ const TreeView: React.FC<TreeProps> = (props: TreeProps) => {
 				function(node) {
                     const parentNode = node.parent;
                     if(!parentNode || !parentNode.data.children)throw `Expected defined parent with defined children but got ${parentNode}`
-                    parentNode.data.children = parentNode.data.children.filter(i=>i.name!==node.data.name)
-                    parentNode.children = parentNode.children!.filter(i=>i.data.name!==node.data.name)
+                    parentNode.data.children = parentNode.data.children.filter(i=>i.id!==node.data.id)
+                    parentNode.children = parentNode.children!.filter(i=>i.data.id!==node.data.id)
                     // node.parent=null; //was causing exceptions, check utils.findCollapsedParent
                     if(onChange){
                         let src = getPath(parentNode, 'children');
